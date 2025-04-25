@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slideshow - Códigos de Erros</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --background: #f8fafc;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Botão Voltar */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .back-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .back-button:active {
+            transform: translateY(0);
+        }
+
+        .back-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Container do Slideshow */
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px 80px;
+        }
+
+        /* Slide */
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            animation: fade 0.5s ease;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slide img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .slide-number {
+            margin-top: 15px;
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+
+        /* Controles de navegação */
+        .controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .nav-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .nav-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+
+        .nav-button:active {
+            transform: translateY(0);
+        }
+
+        .nav-button svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Animações */
+        @keyframes fade {
+            from {opacity: 0.4}
+            to {opacity: 1}
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .slideshow-container {
+                padding: 50px 15px 70px;
+            }
+            
+            .slide img {
+                max-height: 70vh;
+            }
+            
+            .controls {
+                padding: 10px 0;
+            }
+            
+            .nav-button {
+                width: 45px;
+                height: 45px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .back-button {
+                top: 10px;
+                left: 10px;
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .slide img {
+                max-height: 60vh;
+            }
+            
+            .nav-button {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Botão Voltar -->
+    <button onclick="window.location.href='../index.html'" class="back-button">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Voltar
+    </button>
+
+    <!-- Container do Slideshow -->
+    <div class="slideshow-container">
+        <!-- Slides serão inseridos aqui pelo JavaScript -->
+    </div>
+
+    <!-- Controles de navegação -->
+    <div class="controls">
+        <button class="nav-button prev-button" aria-label="Imagem anterior">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        <button class="nav-button next-button" aria-label="Próxima imagem">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 18L15 12L9 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        // Lista de imagens
+        const images = [
+            "CODIGO_DE_ERROS GERAL001.png",
+            "CODIGO_DE_ERROS GERAL002.png",
+            "CODIGO_DE_ERROS GERAL003.png",
+            "CODIGO_DE_ERROS GERAL004.png",
+            "CODIGO_DE_ERROS GERAL005.png",
+            "CODIGO_DE_ERROS GERAL006.png",
+            "CODIGO_DE_ERROS GERAL007.png",
+            "CODIGO_DE_ERROS GERAL008.png",
+            "CODIGO_DE_ERROS GERAL009.png",
+            "CODIGO_DE_ERROS GERAL010.png",
+            "CODIGO_DE_ERROS GERAL011.png",
+            "CODIGO_DE_ERROS GERAL012.png",
+            "CODIGO_DE_ERROS GERAL013.png",
+            "CODIGO_DE_ERROS GERAL014.png",
+            "CODIGO_DE_ERROS GERAL015.png",
+            "CODIGO_DE_ERROS GERAL016.png",
+            "CODIGO_DE_ERROS GERAL017.png",
+            "CODIGO_DE_ERROS GERAL018.png",
+            "CODIGO_DE_ERROS GERAL019.png"
+        ];
+
+        // Elementos DOM
+        const slideshowContainer = document.querySelector('.slideshow-container');
+        const prevButton = document.querySelector('.prev-button');
+        const nextButton = document.querySelector('.next-button');
+        
+        let currentSlide = 0;
+
+        // Criar slides
+        function createSlides() {
+            images.forEach((image, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'slide';
+                slide.innerHTML = `
+                    <img src="${image}" alt="Código de erro ${index + 1}">
+                    <div class="slide-number">${index + 1} / ${images.length}</div>
+                `;
+                slideshowContainer.insertBefore(slide, slideshowContainer.firstChild);
+            });
+            
+            // Mostrar primeiro slide
+            showSlide(currentSlide);
+        }
+
+        // Mostrar slide específico
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n >= slides.length) {
+                currentSlide = 0;
+            } else if (n < 0) {
+                currentSlide = slides.length - 1;
+            } else {
+                currentSlide = n;
+            }
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide].classList.add('active');
+        }
+
+        // Navegação
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Event listeners
+        prevButton.addEventListener('click', prevSlide);
+        nextButton.addEventListener('click', nextSlide);
+
+        // Teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+            }
+        });
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            // Carregar fonte Inter se disponível
+            const link = document.createElement('link');
+            link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap';
+            link.rel = 'stylesheet';
+            document.head.appendChild(link);
+            
+            // Criar slides
+            createSlides();
+        });
+    </script>
+</body>
+</html>

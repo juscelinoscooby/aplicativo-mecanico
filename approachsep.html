@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cálculo de Approach - Fan Coil</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .resultado {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .bom {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+        
+        .atencao {
+            background-color: #fcf8e3;
+            color: #8a6d3b;
+            border: 1px solid #faebcc;
+        }
+        
+        .ruim {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Cálculo de Approach - Fan Coil</h2>
+        
+        <div class="input-group">
+            <label>Temperatura de Saída de Água Gelada (°C):</label>
+            <input type="number" step="0.1" id="agua">
+        </div>
+        
+        <div class="input-group">
+            <label>Temperatura de Saída de Ar no Insuflamento (°C):</label>
+            <input type="number" step="0.1" id="ar">
+        </div>
+        
+        <button onclick="calcularApproach()">Calcular Approach</button>
+        
+        <div id="resultado" class="resultado">
+            Preencha os dados e clique para calcular
+        </div>
+
+        <button onclick="navigateTo('index.html')">
+            <div class="button-icon" style="background-image: url('icone4.png')"></div>
+            <span class="button-label">Voltar</span>
+        </button>
+    </div>
+
+    <script>
+        // Função para navegação entre páginas
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        function calcularApproach() {
+            // Coletar valores dos inputs
+            const agua = parseFloat(document.getElementById('agua').value);
+            const ar = parseFloat(document.getElementById('ar').value);
+            
+            // Validar entradas
+            if (isNaN(agua) || isNaN(ar)) {
+                alert("Por favor, preencha ambos os campos com valores numéricos");
+                return;
+            }
+            
+            // Calcular approach
+            const approach = ar - agua;
+            
+            // Determinar status
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML = `Approach: ${approach.toFixed(2)}°C<br>`;
+            
+            if (approach <= 3) {
+                resultadoDiv.innerHTML += "Condição: Ótima (Approach dentro do ideal)";
+                resultadoDiv.className = "resultado bom";
+            } else if (approach <= 5) {
+                resultadoDiv.innerHTML += "Condição: Atenção (Approach dentro do aceitável)";
+                resultadoDiv.className = "resultado atencao";
+            } else {
+                resultadoDiv.innerHTML += "Condição: Crítica (Approach acima do recomendado)";
+                resultadoDiv.className = "resultado ruim";
+            }
+        }
+    </script>
+</body>
+</html>

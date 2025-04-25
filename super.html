@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de Ar Condicionado</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Diagnóstico Completo de Ar Condicionado</h1>
+        
+        <!-- Seção de seleção de refrigerante e unidades -->
+        <div class="configuracoes">
+            <div class="input-group">
+                <label>Refrigerante:</label>
+                <select id="refrigerante">
+                    <option value="R22">R22</option>
+                    <option value="R410">R 410A</option>
+                    <option value="R32">R 32</option>
+                    <option value="R134">R134a</option>
+                    <option value="R404">R 404A</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Unidade de Pressão:</label>
+                <select id="unidade_pressao" onchange="atualizarUnidades()">
+                    <option value="psi">PSI</option>
+                    <option value="bar">Bar</option>
+                    <option value="kpa">kPa</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Seção de entrada de dados -->
+        <div class="dados-tecnicos">
+            <div class="input-group">
+                <label>Temperatura de Sucção (°C):</label>
+                <input type="number" id="temp_succao" step="0.1">
+                
+                <label>Pressão de Sucção (<span class="unidade">psi</span>):</label>
+                <input type="number" id="pressao_succao" step="0.1">
+                
+                <label>Temperatura Líquida (°C):</label>
+                <input type="number" id="temp_liquida" step="0.1">
+                
+                <label>Pressão de Condensação (<span class="unidade">psi</span>):</label>
+                <input type="number" id="pressao_condensacao" step="0.1">
+            </div>
+        </div>
+
+        <!-- Botões de ação -->
+        <div class="acoes">
+            <button onclick="calcularDiagnostico()">🔍 Calcular Diagnóstico</button>
+            <button onclick="limparCampos()">🧹 Limpar Tudo</button>
+            <button onclick="mostrarHistorico()">📊 Histórico</button>
+            <!-- Botão Voltar -->
+            <button onclick="window.location.href='index.html'">⬅️ Voltar</button>
+        </div>
+
+        <!-- Resultados e recomendações -->
+        <div id="resultado" class="resultado"></div>
+
+        <!-- Histórico de cálculos -->
+        <div id="historico" class="historico" style="display: none;">
+            <h3>Últimos 5 Cálculos</h3>
+            <div id="historico-lista"></div>
+        </div>
+    </div>
+
+    <script>
+        // Banco de dados simplificado
+        let historico = [];
+
+        // Tabelas PT aproximadas para os refrigerantes
+        const refrigerantes = {
+            'R22': {
+                evap: (p) => p * 0.7 + 3,
+                cond: (p) => p * 0.65 + 5,
+                faixa: {sh: [5, 15], sr: [5, 10]}
+            },
+            'R410': {
+                evap: (p) => p * 0.6 + 2,
+                cond: (p) => p * 0.5 + 8,
+                faixa: {sh: [5, 15], sr: [5, 10]}
+            },
+            'R32': {
+                evap: (p) => p * 0.55 + 4,
+                cond: (p) => p * 0.48 + 10,
+                faixa: {sh: [5, 15], sr: [5, 10]}
+            },
+            'R134': {
+                evap: (p) => p * 0.8 + 2,
+                cond: (p) => p * 0.75 + 7,
+                faixa: {sh: [5, 15], sr: [5, 10]}
+            },
+            'R404': {
+                evap: (p) => p * 0.65 + 1,
+                cond: (p) => p * 0.6 + 6,
+                faixa: {sh: [5, 15], sr: [5, 10]}
+            }
+        };
+
+        // Atualiza as unidades de pressão na interface
+        function atualizarUnidades() {
+            const unidade = document.getElementById('unidade_pressao').value;
+            document.querySelectorAll('.unidade').forEach(el => {
+                el.textContent = unidade;
+            });
+        }
+
+        // Converte valores de pressão entre diferentes unidades
+        function converterPressao(valor, de, para) {
+            if (de === para) return valor;
+            
+            const conversoes = {
+                psi: {bar: 0.0689476, kpa: 6.89476},
+                bar: {psi: 14.5038, kpa: 100},
+                kpa: {psi: 0.145038, bar: 0.01}
+            };
+            
+            return valor * conversoes[de][para];
+        }
+
+        // Mostra ou oculta a seção de histórico
+        function mostrarHistorico() {
+            const div = document.getElementById('historico');
+            div.style.display = div.style.display === 'none' ? 'block' : 'none';
+            
+            const lista = historico.slice(-5).map((item, idx) => `
+                <div class="historico-item">
+                    <p>#${idx + 1} ${item.data}</p>
+                    <p>${item.refrigerante} - SH: ${item.sh}°C | SR: ${item.sr}°C</p>
+                </div>
+            `).join('');
+            
+            document.getElementById('historico-lista').innerHTML = lista;
+        }
+
+        // Adiciona um cálculo ao histórico
+        function adicionarAoHistorico(sh, sr) {
+            historico.push({
+                data: new Date().toLocaleString(),
+                refrigerante: document.getElementById('refrigerante').value,
+                sh: sh.toFixed(1),
+                sr: sr.toFixed(1)
+            });
+            
+            // Limita o histórico a 10 itens
+            if (historico.length > 10) {
+                historico.shift();
+            }
+        }
+
+        // Limpa todos os campos de entrada
+        function limparCampos() {
+            document.getElementById('temp_succao').value = '';
+            document.getElementById('pressao_succao').value = '';
+            document.getElementById('temp_liquida').value = '';
+            document.getElementById('pressao_condensacao').value = '';
+            document.getElementById('resultado').innerHTML = '';
+        }
+
+        // Gera recomendações com base nos valores calculados
+        function gerarRecomendacoes(sh, sr, refFaixa) {
+            const recs = [];
+            
+            if(sh < refFaixa.sh[0]) {
+                recs.push("Verificar carga de refrigerante (possível sobrecarga)");
+                recs.push("Inspecionar válvula de expansão (possível fluxo excessivo)");
+            }
+            
+            if(sh > refFaixa.sh[1]) {
+                recs.push("Verificar vazamentos (possível subcarga)");
+                recs.push("Checar restrições no sistema de refrigeração");
+                recs.push("Verificar filtro secador (possível obstrução)");
+            }
+            
+            if(sr < refFaixa.sr[0]) {
+                recs.push("Verificar subcarregamento de refrigerante");
+                recs.push("Checar válvula de expansão (possível restrição)");
+            }
+            
+            if(sr > refFaixa.sr[1]) {
+                recs.push("Verificar sobrecarga de refrigerante");
+                recs.push("Checar ventilação do condensador (possível obstrução)");
+                recs.push("Verificar temperatura do ambiente externo (muito elevada?)");
+            }
+
+            return recs.length > 0 ? recs : ["Sistema dentro dos parâmetros normais de operação"];
+        }
+
+        // Calcula o diagnóstico completo
+        function calcularDiagnostico() {
+            // Obter inputs
+            const tipoRefrigerante = document.getElementById('refrigerante').value;
+            const unidadePressao = document.getElementById('unidade_pressao').value;
+            
+            const tempSuccao = parseFloat(document.getElementById('temp_succao').value);
+            const pressaoSuccao = parseFloat(document.getElementById('pressao_succao').value);
+            const tempLiquida = parseFloat(document.getElementById('temp_liquida').value);
+            const pressaoCondensacao = parseFloat(document.getElementById('pressao_condensacao').value);
+
+            // Validar inputs
+            if (isNaN(tempSuccao) || isNaN(pressaoSuccao) || isNaN(tempLiquida) || isNaN(pressaoCondensacao)) {
+                alert("Por favor, preencha todos os campos com valores numéricos.");
+                return;
+            }
+
+            // Converter pressão para PSI para cálculos
+            const pressaoSuccaoPSI = unidadePressao === 'psi' ? pressaoSuccao : 
+                                    converterPressao(pressaoSuccao, unidadePressao, 'psi');
+            const pressaoCondensacaoPSI = unidadePressao === 'psi' ? pressaoCondensacao : 
+                                         converterPressao(pressaoCondensacao, unidadePressao, 'psi');
+
+            // Calcular temperaturas saturadas
+            const refrigerante = refrigerantes[tipoRefrigerante];
+            const tempSatEvap = refrigerante.evap(pressaoSuccaoPSI);
+            const tempSatCond = refrigerante.cond(pressaoCondensacaoPSI);
+
+            // Calcular superaquecimento e subresfriamento
+            const superaquecimento = tempSuccao - tempSatEvap;
+            const subresfriamento = tempSatCond - tempLiquida;
+
+            // Verificar faixa ideal
+            const faixaIdeal = refrigerante.faixa;
+            const statusSH = superaquecimento < faixaIdeal.sh[0] ? "Baixo" : 
+                            superaquecimento > faixaIdeal.sh[1] ? "Alto" : "Normal";
+            const statusSR = subresfriamento < faixaIdeal.sr[0] ? "Baixo" : 
+                            subresfriamento > faixaIdeal.sr[1] ? "Alto" : "Normal";
+
+            // Adicionar ao histórico
+            adicionarAoHistorico(superaquecimento, subresfriamento);
+
+            // Gerar recomendações
+            const recomendacoes = gerarRecomendacoes(superaquecimento, subresfriamento, faixaIdeal);
+
+            // Mostrar resultados
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML = `
+                <h3>Resultados do Diagnóstico:</h3>
+                <table>
+                    <tr>
+                        <td><strong>Temperatura Saturada de Evaporação:</strong></td>
+                        <td>${tempSatEvap.toFixed(1)}°C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Temperatura Saturada de Condensação:</strong></td>
+                        <td>${tempSatCond.toFixed(1)}°C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Superaquecimento (SH):</strong></td>
+                        <td>${superaquecimento.toFixed(1)}°C <span class="status ${statusSH.toLowerCase()}">${statusSH}</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Subresfriamento (SR):</strong></td>
+                        <td>${subresfriamento.toFixed(1)}°C <span class="status ${statusSR.toLowerCase()}">${statusSR}</span></td>
+                    </tr>
+                </table>
+                
+                <h3>Recomendações:</h3>
+                <ul>${recomendacoes.map(r => `<li>${r}</li>`).join('')}</ul>
+            `;
+        }
+
+        // Inicializa as unidades quando a página carrega
+        window.onload = function() {
+            atualizarUnidades();
+        };
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .configuracoes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .acoes {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .resultado {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .resultado h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .resultado table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        
+        .resultado td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .status.normal {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .status.alto {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .status.baixo {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .historico {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .historico h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .historico-item {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 600px) {
+            .configuracoes {
+                grid-template-columns: 1fr;
+            }
+            
+            .acoes {
+                flex-direction: column;
+            }
+        }
+    </style>
+</body>
+</html>

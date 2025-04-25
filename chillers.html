@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de Chillers</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --border-radius: 4px;
+            --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        
+        h1 {
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            margin: 25px 0 15px;
+            color: var(--dark-color);
+        }
+        
+        .configuracoes, .dados-tecnicos {
+            background: var(--light-color);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+        }
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 1em;
+        }
+        
+        .acoes {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .resultados-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border-top: 3px solid var(--secondary-color);
+        }
+        
+        .card h3 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+        
+        .card p {
+            margin: 5px 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .card small {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .sucesso {
+            border-color: var(--success-color);
+        }
+        
+        .alerta {
+            border-color: var(--warning-color);
+        }
+        
+        .erro {
+            border-color: var(--danger-color);
+        }
+        
+        .recomendacao {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid;
+        }
+        
+        .recomendacao h4 {
+            margin-top: 0;
+        }
+        
+        .recomendacao.sucesso {
+            background-color: rgba(39, 174, 96, 0.1);
+            border-color: var(--success-color);
+        }
+        
+        .recomendacao.aviso {
+            background-color: rgba(243, 156, 18, 0.1);
+            border-color: var(--warning-color);
+        }
+        
+        .recomendacao.erro {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-color: var(--danger-color);
+        }
+        
+        .recomendacao.info {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-color: var(--secondary-color);
+        }
+        
+        .historico {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .historico-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        
+        .badge.ok {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .badge.alerta {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .resultados-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .acoes {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Diagnóstico Completo de Chillers</h1>
+        
+        <!-- Seção de seleção de configurações -->
+        <div class="configuracoes">
+            <h2>Configurações do Sistema</h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="tipo_chiller">Tipo de Chiller:</label>
+                    <select id="tipo_chiller" onchange="atualizarTipoChiller()">
+                        <option value="resfriado_agua">Resfriado a Água</option>
+                        <option value="resfriado_ar">Resfriado a Ar</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="refrigerante">Refrigerante:</label>
+                    <select id="refrigerante">
+                        <option value="R22">R22</option>
+                        <option value="R134a">R134a</option>
+                        <option value="R410A">R410A</option>
+                        <option value="R407C">R407C</option>
+                        <option value="R404A">R404A</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="unidade_pressao">Unidade de Pressão:</label>
+                    <select id="unidade_pressao" onchange="atualizarUnidades()">
+                        <option value="psi">PSI</option>
+                        <option value="bar">Bar</option>
+                        <option value="kpa">kPa</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="unidade_vazao">Unidade de Vazão:</label>
+                    <select id="unidade_vazao" onchange="atualizarUnidadesVazao()">
+                        <option value="lpm">L/min</option>
+                        <option value="gpm">GPM</option>
+                        <option value="m3h">m³/h</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de entrada de dados -->
+        <div class="dados-tecnicos">
+            <h2>Dados do Circuito de Refrigeração</h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="temp_succao">Temperatura de Sucção (°C):</label>
+                    <input type="number" id="temp_succao" step="0.1" placeholder="Ex: 10.5">
+                </div>
+                
+                <div class="input-group">
+                    <label for="pressao_succao">Pressão de Sucção (<span class="unidade_pressao">psi</span>):</label>
+                    <input type="number" id="pressao_succao" step="0.1" placeholder="Ex: 65.2">
+                </div>
+                
+                <div class="input-group">
+                    <label for="temp_descarga">Temperatura de Descarga (°C):</label>
+                    <input type="number" id="temp_descarga" step="0.1" placeholder="Ex: 85.0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="pressao_descarga">Pressão de Descarga (<span class="unidade_pressao">psi</span>):</label>
+                    <input type="number" id="pressao_descarga" step="0.1" placeholder="Ex: 180.5">
+                </div>
+                
+                <div class="input-group">
+                    <label for="temp_liquido">Temperatura de Líquido (°C):</label>
+                    <input type="number" id="temp_liquido" step="0.1" placeholder="Ex: 35.0">
+                </div>
+            </div>
+            
+            <h2>Dados do Circuito Hidráulico</h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="temp_entrada_agua">Temperatura de Entrada da Água Gelada (°C):</label>
+                    <input type="number" id="temp_entrada_agua" step="0.1" placeholder="Ex: 12.0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="temp_saida_agua">Temperatura de Saída da Água Gelada (°C):</label>
+                    <input type="number" id="temp_saida_agua" step="0.1" placeholder="Ex: 7.0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="vazao_agua">Vazão de Água (<span class="unidade_vazao">L/min</span>):</label>
+                    <input type="number" id="vazao_agua" step="0.1" placeholder="Ex: 120.0">
+                </div>
+                
+                <div class="input-group resfriado-agua">
+                    <label for="temp_entrada_condensacao">Temperatura de Entrada da Água de Condensação (°C):</label>
+                    <input type="number" id="temp_entrada_condensacao" step="0.1" placeholder="Ex: 30.0">
+                </div>
+                
+                <div class="input-group resfriado-agua">
+                    <label for="temp_saida_condensacao">Temperatura de Saída da Água de Condensação (°C):</label>
+                    <input type="number" id="temp_saida_condensacao" step="0.1" placeholder="Ex: 35.0">
+                </div>
+                
+                <div class="input-group resfriado-agua">
+                    <label for="vazao_agua_condensacao">Vazão de Água de Condensação (<span class="unidade_vazao">L/min</span>):</label>
+                    <input type="number" id="vazao_agua_condensacao" step="0.1" placeholder="Ex: 150.0">
+                </div>
+                
+                <div class="input-group resfriado-ar" style="display: none;">
+                    <label for="temp_ar_externo">Temperatura do Ar Externo (°C):</label>
+                    <input type="number" id="temp_ar_externo" step="0.1" placeholder="Ex: 32.0">
+                </div>
+            </div>
+            
+            <h2>Dados Elétricos</h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="corrente_nominal">Corrente Nominal do Compressor (A):</label>
+                    <input type="number" id="corrente_nominal" step="0.1" placeholder="Ex: 25.0">
+                </div>
+                
+                <div class="input-group">
+                    <label for="corrente_atual">Corrente Atual do Compressor (A):</label>
+                    <input type="number" id="corrente_atual" step="0.1" placeholder="Ex: 23.5">
+                </div>
+                
+                <div class="input-group">
+                    <label for="tensao">Tensão (V):</label>
+                    <input type="number" id="tensao" step="0.1" placeholder="Ex: 380.0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Botões de ação -->
+        <div class="acoes">
+            <button onclick="calcularDiagnostico()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Calcular Diagnóstico
+            </button>
+            <button onclick="limparCampos()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Limpar Campos
+            </button>
+            <button onclick="mostrarHistorico()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="20" x2="12" y2="10"></line>
+                    <line x1="18" y1="20" x2="18" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="16"></line>
+                </svg>
+                Histórico
+            </button>
+            <button onclick="gerarRelatorio()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Gerar Relatório
+            </button>
+            <!-- Botão Voltar -->
+            <button onclick="window.location.href='index.html'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Voltar
+            </button>
+        </div>
+
+        <!-- Resultados e recomendações -->
+        <div id="resultado" class="resultado"></div>
+
+        <!-- Histórico de cálculos -->
+        <div id="historico" class="historico" style="display: none;">
+            <h3>Histórico de Diagnósticos</h3>
+            <div id="historico-lista"></div>
+        </div>
+    </div>
+
+    <script>
+        // Banco de dados de histórico
+        let historico = [];
+
+        // Tabelas PT aproximadas para os refrigerantes
+        const refrigerantes = {
+            'R22': {
+                evap: (p) => {
+                    if (p <= 0) return -40;
+                    // Valores aproximados para R22
+                    if (p <= 10) return -38 + p * 2.8;
+                    if (p <= 30) return -10 + (p - 10) * 1.5;
+                    if (p <= 50) return 20 + (p - 30) * 1.2;
+                    if (p <= 80) return 44 + (p - 50) * 0.8;
+                    if (p <= 150) return 68 + (p - 80) * 0.6;
+                    return 110 + (p - 150) * 0.4;
+                },
+                cond: (p) => {
+                    if (p <= 0) return -40;
+                    // Valores aproximados para R22 (condensação)
+                    if (p <= 10) return -35 + p * 2.5;
+                    if (p <= 30) return -10 + (p - 10) * 1.4;
+                    if (p <= 50) return 18 + (p - 30) * 1.1;
+                    if (p <= 80) return 40 + (p - 50) * 0.7;
+                    if (p <= 150) return 61 + (p - 80) * 0.5;
+                    return 96 + (p - 150) * 0.3;
+                },
+                faixas: {
+                    sh: [5, 15],
+                    sr: [5, 10],
+                    approach: [2, 6],
+                    agua_delta: [4, 8],
+                    corrente: [0.8, 1.1],
+                    descarga_max: 110
+                }
+            },
+            'R134a': {
+                evap: (p) => {
+                    if (p <= 0) return -40;
+                    // Valores aproximados para R134a
+                    if (p <= 10) return -26 + p * 2.6;
+                    if (p <= 30) return 0 + (p - 10) * 1.4;
+                    if (p <= 50) return 28 + (p - 30) * 1.0;
+                    if (p <= 80) return 48 + (p - 50) * 0.7;
+                    if (p <= 150) return 69 + (p - 80) * 0.5;
+                    return 104 + (p - 150) * 0.3;
+                },
+                cond: (p) => {
+                    if (p <= 0) return -40;
+                    // Valores aproximados para R134a (condensação)
+                    if (p <= 10) return -24 + p * 2.4;
+                    if (p <= 30) return 0 + (p - 10) * 1.3;
+                    if (p <= 50) return 26 + (p - 30) * 0.9;
+                    if (p <= 80) return 44 + (p - 50) * 0.6;
+                    if (p <= 150) return 62 + (p - 80) * 0.4;
+                    return 90 + (p - 150) * 0.3;
+                },
+                faixas: {
+                    sh: [5, 15],
+                    sr: [5, 10],
+                    approach: [2, 6],
+                    agua_delta: [4, 8],
+                    corrente: [0.8, 1.1],
+                    descarga_max: 100
+                }
+            },
+            'R410A': {
+                evap: (p) => {
+                    if (p <= 0) return -60;
+                    // Valores aproximados para R410A
+                    if (p <= 30) return -50 + p * 1.8;
+                    if (p <= 60) return 4 + (p - 30) * 1.2;
+                    if (p <= 100) return 40 + (p - 60) * 0.8;
+                    if (p <= 200) return 72 + (p - 100) * 0.4;
+                    return 112 + (p - 200) * 0.2;
+                },
+                cond: (p) => {
+                    if (p <= 0) return -60;
+                    // Valores aproximados para R410A (condensação)
+                    if (p <= 30) return -50 + p * 1.7;
+                    if (p <= 60) return 1 + (p - 30) * 1.1;
+                    if (p <= 100) return 34 + (p - 60) * 0.7;
+                    if (p <= 200) return 62 + (p - 100) * 0.3;
+                    return 92 + (p - 200) * 0.2;
+                },
+                faixas: {
+                    sh: [4, 14],
+                    sr: [4, 10],
+                    approach: [2, 6],
+                    agua_delta: [4, 8],
+                    corrente: [0.8, 1.1],
+                    descarga_max: 105
+                }
+            },
+            'R407C': {
+                evap: (p) => {
+                    if (p <= 0) return -50;
+                    // Valores aproximados para R407C
+                    if (p <= 30) return -45 + p * 1.7;
+                    if (p <= 60) return 6 + (p - 30) * 1.1;
+                    if (p <= 100) return 39 + (p - 60) * 0.7;
+                    if (p <= 200) return 67 + (p - 100) * 0.3;
+                    return 97 + (p - 200) * 0.2;
+                },
+                cond: (p) => {
+                    if (p <= 0) return -50;
+                    // Valores aproximados para R407C (condensação)
+                    if (p <= 30) return -45 + p * 1.6;
+                    if (p <= 60) return 3 + (p - 30) * 1.0;
+                    if (p <= 100) return 33 + (p - 60) * 0.6;
+                    if (p <= 200) return 57 + (p - 100) * 0.3;
+                    return 87 + (p - 200) * 0.2;
+                },
+                faixas: {
+                    sh: [4, 14],
+                    sr: [4, 10],
+                    approach: [2, 6],
+                    agua_delta: [4, 8],
+                    corrente: [0.8, 1.1],
+                    descarga_max: 100
+                }
+            },
+            'R404A': {
+                evap: (p) => {
+                    if (p <= 0) return -60;
+                    // Valores aproximados para R404A
+                    if (p <= 30) return -55 + p * 1.8;
+                    if (p <= 60) return -1 + (p - 30) * 1.2;
+                    if (p <= 100) return 35 + (p - 60) * 0.7;
+                    if (p <= 200) return 63 + (p - 100) * 0.3;
+                    return 93 + (p - 200) * 0.2;
+                },
+                cond: (p) => {
+                    if (p <= 0) return -60;
+                    // Valores aproximados para R404A (condensação)
+                    if (p <= 30) return -55 + p * 1.7;
+                    if (p <= 60) return -4 + (p - 30) * 1.1;
+                    if (p <= 100) return 29 + (p - 60) * 0.6;
+                    if (p <= 200) return 53 + (p - 100) * 0.3;
+                    return 83 + (p - 200) * 0.2;
+                },
+                faixas: {
+                    sh: [4, 12],
+                    sr: [4, 9],
+                    approach: [2, 6],
+                    agua_delta: [4, 8],
+                    corrente: [0.8, 1.1],
+                    descarga_max: 95
+                }
+            }
+        };
+
+        /**
+         * Atualiza o tipo de chiller e exibe/oculta campos relevantes
+         */
+        function atualizarTipoChiller() {
+            const tipo = document.getElementById('tipo_chiller').value;
+            
+            // Elementos específicos para chillers resfriados a água
+            const elementosAgua = document.querySelectorAll('.resfriado-agua');
+            // Elementos específicos para chillers resfriados a ar
+            const elementosAr = document.querySelectorAll('.resfriado-ar');
+            
+            if (tipo === 'resfriado_agua') {
+                elementosAgua.forEach(el => el.style.display = 'block');
+                elementosAr.forEach(el => el.style.display = 'none');
+            } else {
+                elementosAgua.forEach(el => el.style.display = 'none');
+                elementosAr.forEach(el => el.style.display = 'block');
+            }
+        }
+
+        /**
+         * Atualiza as unidades de pressão na tela
+         */
+        function atualizarUnidades() {
+            const unidade = document.getElementById('unidade_pressao').value;
+            
+            // Atualiza todas as labels de unidade de pressão
+            document.querySelectorAll('.unidade_pressao').forEach(el => {
+                el.textContent = unidade;
+            });
+        }
+        
+        /**
+         * Atualiza as unidades de vazão na tela
+         */
+        function atualizarUnidadesVazao() {
+            const unidade = document.getElementById('unidade_vazao').value;
+            
+            // Atualiza todas as labels de unidade de vazão
+            document.querySelectorAll('.unidade_vazao').forEach(el => {
+                el.textContent = unidade;
+            });
+        }
+
+        /**
+         * Converte valores de pressão entre diferentes unidades
+         * @param {number} valor - Valor a ser convertido
+         * @param {string} de - Unidade de origem ('psi', 'bar', 'kpa')
+         * @param {string} para - Unidade de destino ('psi', 'bar', 'kpa')
+         * @returns {number} Valor convertido
+         */
+        function converterPressao(valor, de, para) {
+            if (de === para) return valor;
+            
+            const conversoes = {
+                psi: {bar: 0.0689476, kpa: 6.89476},
+                bar: {psi: 14.5038, kpa: 100},
+                kpa: {psi: 0.145038, bar: 0.01}
+            };
+            
+            return valor * conversoes[de][para];
+        }
+        
+        /**
+         * Converte valores de vazão entre diferentes unidades
+         * @param {number} valor - Valor a ser convertido
+         * @param {string} de - Unidade de origem ('lpm', 'gpm', 'm3h')
+         * @param {string} para - Unidade de destino ('lpm', 'gpm', 'm3h')
+         * @returns {number} Valor convertido
+         */
+        function converterVazao(valor, de, para) {
+            if (de === para) return valor;
+            
+            const conversoes = {
+                lpm: {gpm: 0.264172, m3h: 0.06},
+                gpm: {lpm: 3.78541, m3h: 0.227124},
+                m3h: {lpm: 16.6667, gpm: 4.40287}
+            };
+            
+            return valor * conversoes[de][para];
+        }
+        
+        /**
+         * Calcula a capacidade térmica com base nos dados de água gelada
+         * @param {number} vazao - Vazão do fluido
+         * @param {number} deltaT - Diferença de temperatura
+         * @param {string} unidadeVazao - Unidade da vazão ('lpm', 'gpm', 'm3h')
+         * @returns {number} Capacidade térmica em kW
+         */
+        function calcularCapacidadeTermica(vazao, deltaT, unidadeVazao) {
+            // Converter vazão para m³/h para cálculo
+            const vazaoM3h = converterVazao(vazao, unidadeVazao, 'm3h');
+            
+            // Calor específico da água: 4.186 kJ/kg·°C
+            // Densidade da água: 1000 kg/m³
+            // Capacidade em kW = Vazão (m³/h) * 4.186 * 1000 * deltaT / 3600
+            return vazaoM3h * 4.186 * 1000 * deltaT / 3600;
+        }
+        
+        /**
+         * Calcula a eficiência do sistema (COP - Coefficient of Performance)
+         * @param {number} capacidadeKW - Capacidade térmica em kW
+         * @param {number} tensao - Tensão elétrica em V
+         * @param {number} corrente - Corrente elétrica em A
+         * @returns {number} Valor do COP
+         */
+        function calcularCOP(capacidadeKW, tensao, corrente) {
+            // Calcula a potência consumida pelo compressor (assumindo FP = 0.8 para sistemas trifásicos)
+            const potenciaKW = (tensao * corrente * Math.sqrt(3) * 0.8) / 1000;
+            
+            // COP = Capacidade de refrigeração / Potência consumida
+            return capacidadeKW / potenciaKW;
+        }
+
+        /**
+         * Limpa todos os campos de entrada
+         */
+        function limparCampos() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                input.value = '';
+            });
+            
+            document.getElementById('resultado').innerHTML = '';
+        }
+
+        /**
+         * Exibe ou oculta o histórico de diagnósticos
+         */
+        function mostrarHistorico() {
+            const div = document.getElementById('historico');
+            div.style.display = div.style.display === 'none' ? 'block' : 'none';
+            
+            // Exibe os últimos 5 diagnósticos
+            const lista = historico.slice(-5).map((item, idx) => `
+                <div class="historico-item">
+                    <p><strong>Data:</strong> ${item.data}</p>
+                    <p><strong>Refrigerante:</strong> ${item.refrigerante}</p>
+                    <p><strong>Tipo de Chiller:</strong> ${item.tipoChiller === 'resfriado_agua' ? 'Resfriado a Água' : 'Resfriado a Ar'}</p>
+                    <p><strong>Capacidade:</strong> ${item.capacidade.toFixed(1)} kW</p>
+                    <p><strong>COP:</strong> ${item.cop.toFixed(2)}</p>
+                    <p><strong>SH:</strong> ${item.sh.toFixed(1)}°C <span class="badge ${item.statusSH.toLowerCase()}">${item.statusSH}</span></p>
+                    <p><strong>SR:</strong> ${item.sr.toFixed(1)}°C <span class="badge ${item.statusSR.toLowerCase()}">${item.statusSR}</span></p>
+                </div>
+            `).join('');
+            
+            document.getElementById('historico-lista').innerHTML = lista;
+        }
+
+        /**
+         * Adiciona um novo diagnóstico ao histórico
+         * @param {Object} diagnostico - Objeto com os dados do diagnóstico
+         */
+        function adicionarAoHistorico(diagnostico) {
+            historico.push(diagnostico);
+            
+            // Limita o histórico a 10 itens
+            if (historico.length > 10) {
+                historico.shift();
+            }
+        }
+
+        /**
+         * Gera recomendações com base nos valores calculados
+         * @param {Object} diagnostico - Objeto com os dados do diagnóstico
+         * @param {Object} faixas - Objeto com as faixas ideais para o refrigerante
+         * @returns {Array} Array de objetos com recomendações
+         */
+        function gerarRecomendacoes(diagnostico, faixas) {
+            const recs = [];
+            
+            // Verificações de superaquecimento
+            if(diagnostico.sh < faixas.sh[0]) {
+                recs.push({
+                    tipo: "aviso",
+                    titulo: "Superaquecimento Baixo",
+                    mensagem: "Possível excesso de refrigerante ou expansão excessiva na válvula.",
+                    acoes: [
+                        "Verificar carga de refrigerante",
+                        "Inspecionar/ajustar a válvula de expansão",
+                        "Verificar se o sensor de temperatura do evaporador está corretamente instalado"
+                    ]
+                });
+            } else if(diagnostico.sh > faixas.sh[1]) {
+                recs.push({
+                    tipo: "erro",
+                    titulo: "Superaquecimento Alto",
+                    mensagem: "Possível falta de refrigerante ou restrição na expansão.",
+                    acoes: [
+                        "Verificar vazamentos no sistema",
+                        "Inspecionar válvula de expansão quanto a restrições",
+                        "Verificar filtro secador (possível entupimento)"
+                    ]
+                });
+            }
+            
+            // Verificações de subresfriamento
+            if(diagnostico.sr < faixas.sr[0]) {
+                recs.push({
+                    tipo: "aviso",
+                    titulo: "Subresfriamento Baixo",
+                    mensagem: "Possível falta de refrigerante ou problemas no condensador.",
+                    acoes: [
+                        "Verificar carga de refrigerante",
+                        "Inspecionar o condensador quanto à obstruções",
+                        "Checar vazão de água ou ar de condensação"
+                    ]
+                });
+            } else if(diagnostico.sr > faixas.sr[1]) {
+                recs.push({
+                    tipo: "aviso",
+                    titulo: "Subresfriamento Alto",
+                    mensagem: "Possível excesso de refrigerante ou restrição no sistema.",
+                    acoes: [
+                        "Verificar carga de refrigerante",
+                        "Inspecionar possíveis restrições após o condensador",
+                        "Checar temperatura do meio de condensação (água ou ar)"
+                    ]
+                });
+            }
+            
+            // Verificações para a temperatura de descarga
+            if(diagnostico.tempDescarga > faixas.descarga_max) {
+                recs.push({
+                    tipo: "erro",
+                    titulo: "Temperatura de Descarga Alta",
+                    mensagem: `A temperatura de descarga está acima do limite máximo recomendado (${faixas.descarga_max}°C).`,
+                    acoes: [
+                        "Verificar o sistema de condensação",
+                        "Checar temperatura do meio de condensação",
+                        "Verificar razão de compressão",
+                        "Inspecionar o superaquecimento"
+                    ]
+                });
+            }
+            
+            // Verificações para abordagem de temperatura (approach)
+            if(diagnostico.approach < faixas.approach[0]) {
+                recs.push({
+                    tipo: "info",
+                    titulo: "Approach Baixo",
+                    mensagem: "A diferença entre a temperatura de condensação e a saída da água/ar está muito baixa.",
+                    acoes: [
+                        "Verificar o fluxo do meio de condensação",
+                        "Inspecionar a superfície do condensador"
+                    ]
+                });
+            } else if(diagnostico.approach > faixas.approach[1]) {
+                recs.push({
+                    tipo: "aviso",
+                    titulo: "Approach Alto",
+                    mensagem: "A diferença entre a temperatura de condensação e a saída da água/ar está muito alta.",
+                    acoes: [
+                        "Verificar incrustações no condensador",
+                        "Checar entupimento no condensador",
+                        "Verificar vazão do meio de condensação"
+                    ]
+                });
+            }
+            
+            // Verificações para a corrente elétrica
+            const relacaoCorrente = diagnostico.corrente / diagnostico.correnteNominal;
+            if(relacaoCorrente < faixas.corrente[0]) {
+                recs.push({
+                    tipo: "aviso",
+                    titulo: "Corrente Abaixo do Normal",
+                    mensagem: "O compressor está consumindo menos corrente que o esperado.",
+                    acoes: [
+                        "Verificar a carga de refrigerante",
+                        "Inspecionar válvulas do compressor",
+                        "Verificar se há restrições no sistema"
+                    ]
+                });
+            } else if(relacaoCorrente > faixas.corrente[1]) {
+                recs.push({
+                    tipo: "erro",
+                    titulo: "Corrente Acima do Normal",
+                    mensagem: "O compressor está consumindo mais corrente que o esperado.",
+                    acoes: [
+                        "Verificar condições de operação",
+                        "Inspecionar sistema elétrico",
+                        "Verificar razão de compressão",
+                        "Checar temperatura de condensação"
+                    ]
+                });
+            }
+            
+            // Verificações para o delta T de água gelada
+            if(diagnostico.deltaTAgua < faixas.agua_delta[0]) {
+                recs.push({
+                    tipo: "aviso",
+                    titulo: "Delta T da Água Gelada Baixo",
+                    mensagem: "A diferença de temperatura na água gelada está abaixo do esperado.",
+                    acoes: [
+                        "Verificar vazão da água (possivelmente alta)",
+                        "Inspecionar capacidade do sistema",
+                        "Verificar calibração dos sensores"
+                    ]
+                });
+            } else if(diagnostico.deltaTAgua > faixas.agua_delta[1]) {
+                recs.push({
+                    tipo: "aviso",
+                    titulo: "Delta T da Água Gelada Alto",
+                    mensagem: "A diferença de temperatura na água gelada está acima do esperado.",
+                    acoes: [
+                        "Verificar vazão da água (possivelmente baixa)",
+                        "Inspecionar bomba de água",
+                        "Verificar obstruções no circuito hidráulico"
+                    ]
+                });
+            }
+            
+            // Verificações para COP
+            if(diagnostico.cop < 2.5) {
+                recs.push({
+                    tipo: "erro",
+                    titulo: "Eficiência (COP) Baixa",
+                    mensagem: "O sistema está operando com eficiência abaixo do esperado.",
+                    acoes: [
+                        "Verificar temperaturas de operação",
+                        "Inspecionar o compressor",
+                        "Verificar sistema de condensação",
+                        "Checar carga de refrigerante"
+                    ]
+                });
+            } else if(diagnostico.cop < 3.5) {
+                recs.push({
+                    tipo: "aviso",
+                    titulo: "Eficiência (COP) Mediana",
+                    mensagem: "O sistema está operando com eficiência razoável, mas abaixo do ideal.",
+                    acoes: [
+                        "Verificar incrustações nos trocadores de calor",
+                        "Inspecionar sistemas de controle",
+                        "Verificar temperatura do meio de condensação"
+                    ]
+                });
+            }
+            
+            // Se não houver recomendações, sistema está normal
+            if(recs.length === 0) {
+                recs.push({
+                    tipo: "sucesso",
+                    titulo: "Sistema Operando Corretamente",
+                    mensagem: "Todos os parâmetros estão dentro das faixas recomendadas.",
+                    acoes: [
+                        "Manter rotina de manutenção preventiva",
+                        "Documentar condições de operação para referência futura"
+                    ]
+                });
+            }
+            
+            return recs;
+        }
+
+        /**
+         * Função principal para calcular o diagnóstico
+         */
+        function calcularDiagnostico() {
+            // Obter tipo de chiller e refrigerante
+            const tipoChiller = document.getElementById('tipo_chiller').value;
+            const tipoRefrigerante = document.getElementById('refrigerante').value;
+            const unidadePressao = document.getElementById('unidade_pressao').value;
+            const unidadeVazao = document.getElementById('unidade_vazao').value;
+
+            // Coletar valores de entrada
+            const tempSuccao = parseFloat(document.getElementById('temp_succao').value);
+            const pressaoSuccao = parseFloat(document.getElementById('pressao_succao').value);
+            const tempDescarga = parseFloat(document.getElementById('temp_descarga').value);
+            const pressaoDescarga = parseFloat(document.getElementById('pressao_descarga').value);
+            const tempLiquido = parseFloat(document.getElementById('temp_liquido').value);
+            
+            // Dados hidráulicos
+            const tempEntradaAgua = parseFloat(document.getElementById('temp_entrada_agua').value);
+            const tempSaidaAgua = parseFloat(document.getElementById('temp_saida_agua').value);
+            const vazaoAgua = parseFloat(document.getElementById('vazao_agua').value);
+            
+            // Dados elétricos
+            const correnteNominal = parseFloat(document.getElementById('corrente_nominal').value);
+            const correnteAtual = parseFloat(document.getElementById('corrente_atual').value);
+            const tensao = parseFloat(document.getElementById('tensao').value);
+
+            // Validar campos obrigatórios
+            const camposObrigatorios = [
+                tempSuccao, pressaoSuccao, tempDescarga, pressaoDescarga, tempLiquido,
+                tempEntradaAgua, tempSaidaAgua, vazaoAgua, correnteNominal, correnteAtual, tensao
+            ];
+            
+            if (camposObrigatorios.some(isNaN)) {
+                alert("Por favor, preencha todos os campos obrigatórios!");
+                return;
+            }
+
+            // Converter pressões para PSI para cálculos
+            const pressaoSuccaoPsi = converterPressao(pressaoSuccao, unidadePressao, 'psi');
+            const pressaoDescargaPsi = converterPressao(pressaoDescarga, unidadePressao, 'psi');
+
+            // Obter dados do refrigerante
+            const refrigerante = refrigerantes[tipoRefrigerante];
+            
+            // Calcular temperaturas saturadas
+            const tempEvaporacao = refrigerante.evap(pressaoSuccaoPsi);
+            const tempCondensacao = refrigerante.cond(pressaoDescargaPsi);
+            
+            // Calcular superaquecimento e subresfriamento
+            const SH = tempSuccao - tempEvaporacao;
+            const SR = tempCondensacao - tempLiquido;
+            
+            // Calcular approach do condensador
+            let approach;
+            if (tipoChiller === 'resfriado_agua') {
+                const tempSaidaCondensacao = parseFloat(document.getElementById('temp_saida_condensacao').value);
+                if (isNaN(tempSaidaCondensacao)) {
+                    alert("Por favor, preencha a temperatura de saída da água de condensação!");
+                    return;
+                }
+                approach = tempCondensacao - tempSaidaCondensacao;
+            } else {
+                const tempArExterno = parseFloat(document.getElementById('temp_ar_externo').value);
+                if (isNaN(tempArExterno)) {
+                    alert("Por favor, preencha a temperatura do ar externo!");
+                    return;
+                }
+                approach = tempCondensacao - tempArExterno;
+            }
+            
+            // Calcular capacidade térmica
+            const deltaTAgua = tempSaidaAgua - tempEntradaAgua;
+            if (deltaTAgua <= 0) {
+                alert("Delta T da água gelada inválido! A temperatura de saída deve ser menor que a de entrada.");
+                return;
+            }
+            const capacidadeKW = calcularCapacidadeTermica(vazaoAgua, deltaTAgua, unidadeVazao);
+            
+            // Calcular COP
+            const cop = calcularCOP(capacidadeKW, tensao, correnteAtual);
+            
+            // Relação de corrente
+            const relacaoCorrente = correnteAtual / correnteNominal;
+            
+            // Coletar dados para histórico
+            const diagnostico = {
+                data: new Date().toLocaleString(),
+                tipoChiller,
+                refrigerante: tipoRefrigerante,
+                capacidade: capacidadeKW,
+                cop,
+                sh: SH,
+                sr: SR,
+                approach,
+                deltaTAgua,
+                tempDescarga,
+                correnteNominal,
+                correnteAtual,
+                statusSH: (SH >= refrigerante.faixas.sh[0] && SH <= refrigerante.faixas.sh[1]) ? 'OK' : 'Alerta',
+                statusSR: (SR >= refrigerante.faixas.sr[0] && SR <= refrigerante.faixas.sr[1]) ? 'OK' : 'Alerta'
+            };
+            
+            // Gerar recomendações
+            const recomendacoes = gerarRecomendacoes(diagnostico, refrigerante.faixas);
+            
+            // Exibir resultados
+            const resultadoDiv = document.getElementById('resultado');
+            let html = `
+                <h2>Resultados do Diagnóstico</h2>
+                <div class="resultados-grid">
+                    <div class="card">
+                        <h3>⛄ Capacidade Térmica</h3>
+                        <p>${capacidadeKW.toFixed(1)} kW</p>
+                    </div>
+                    <div class="card">
+                        <h3>⚡ COP</h3>
+                        <p>${cop.toFixed(2)}</p>
+                    </div>
+                    <div class="card ${diagnostico.statusSH === 'OK' ? 'sucesso' : 'alerta'}">
+                        <h3>🌡️ Superaquecimento (SH)</h3>
+                        <p>${SH.toFixed(1)}°C</p>
+                        <small>Faixa ideal: ${refrigerante.faixas.sh.join(' - ')}°C</small>
+                    </div>
+                    <div class="card ${diagnostico.statusSR === 'OK' ? 'sucesso' : 'alerta'}">
+                        <h3>❄️ Subresfriamento (SR)</h3>
+                        <p>${SR.toFixed(1)}°C</p>
+                        <small>Faixa ideal: ${refrigerante.faixas.sr.join(' - ')}°C</small>
+                    </div>
+                </div>
+                <h3>🔧 Recomendações</h3>
+            `;
+            
+            recomendacoes.forEach(rec => {
+                html += `
+                    <div class="recomendacao ${rec.tipo}">
+                        <h4>${rec.titulo}</h4>
+                        <p>${rec.mensagem}</p>
+                        ${rec.acoes.map(acao => `<p>✅ ${acao}</p>`).join('')}
+                    </div>
+                `;
+            });
+            
+            resultadoDiv.innerHTML = html;
+            adicionarAoHistorico(diagnostico);
+        }
+
+        /**
+         * Gera um relatório em PDF (simulado)
+         */
+        function gerarRelatorio() {
+            const resultado = document.getElementById('resultado').innerHTML;
+            if (!resultado) {
+                alert("Primeiro execute um diagnóstico para gerar o relatório!");
+                return;
+            }
+            
+            const janela = window.open('', '_blank');
+            janela.document.write(`
+                <html>
+                    <head>
+                        <style>
+                            .recomendacao.aviso { background-color: rgba(243, 156, 18, 0.1); }
+                            .recomendacao.erro { background-color: rgba(231, 76, 60, 0.1); }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>Relatório de Diagnóstico</h1>
+                        <p><strong>Data:</strong> ${new Date().toLocaleString()}</p>
+                        ${resultado}
+                        <script>
+                            setTimeout(() => {
+                                window.print();
+                            }, 500);
+                        </scr` + `ipt>
+                    </body>
+                </html>
+            `); // This backtick properly closes the template literal
+        }
+
+        // Inicializa a página
+        document.addEventListener('DOMContentLoaded', () => {
+            atualizarTipoChiller();
+            atualizarUnidades();
+            atualizarUnidadesVazao();
+        });
+    </script>
+</body>
+</html>
