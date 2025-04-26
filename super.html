@@ -1,428 +1,474 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diagnóstico de Ar Condicionado</title>
-</head>
-<body>
-    <div class="container">
-        <h1>Diagnóstico Completo de Ar Condicionado</h1>
-        
-        <!-- Seção de seleção de refrigerante e unidades -->
-        <div class="configuracoes">
-            <div class="input-group">
-                <label>Refrigerante:</label>
-                <select id="refrigerante">
-                    <option value="R22">R22</option>
-                    <option value="R410">R 410A</option>
-                    <option value="R32">R 32</option>
-                    <option value="R134">R134a</option>
-                    <option value="R404">R 404A</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label>Unidade de Pressão:</label>
-                <select id="unidade_pressao" onchange="atualizarUnidades()">
-                    <option value="psi">PSI</option>
-                    <option value="bar">Bar</option>
-                    <option value="kpa">kPa</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Seção de entrada de dados -->
-        <div class="dados-tecnicos">
-            <div class="input-group">
-                <label>Temperatura de Sucção (°C):</label>
-                <input type="number" id="temp_succao" step="0.1">
-                
-                <label>Pressão de Sucção (<span class="unidade">psi</span>):</label>
-                <input type="number" id="pressao_succao" step="0.1">
-                
-                <label>Temperatura Líquida (°C):</label>
-                <input type="number" id="temp_liquida" step="0.1">
-                
-                <label>Pressão de Condensação (<span class="unidade">psi</span>):</label>
-                <input type="number" id="pressao_condensacao" step="0.1">
-            </div>
-        </div>
-
-        <!-- Botões de ação -->
-        <div class="acoes">
-            <button onclick="calcularDiagnostico()">🔍 Calcular Diagnóstico</button>
-            <button onclick="limparCampos()">🧹 Limpar Tudo</button>
-            <button onclick="mostrarHistorico()">📊 Histórico</button>
-            <!-- Botão Voltar -->
-            <button onclick="window.location.href='index.html'">⬅️ Voltar</button>
-        </div>
-
-        <!-- Resultados e recomendações -->
-        <div id="resultado" class="resultado"></div>
-
-        <!-- Histórico de cálculos -->
-        <div id="historico" class="historico" style="display: none;">
-            <h3>Últimos 5 Cálculos</h3>
-            <div id="historico-lista"></div>
-        </div>
-    </div>
-
-    <script>
-        // Banco de dados simplificado
-        let historico = [];
-
-        // Tabelas PT aproximadas para os refrigerantes
-        const refrigerantes = {
-            'R22': {
-                evap: (p) => p * 0.7 + 3,
-                cond: (p) => p * 0.65 + 5,
-                faixa: {sh: [5, 15], sr: [5, 10]}
-            },
-            'R410': {
-                evap: (p) => p * 0.6 + 2,
-                cond: (p) => p * 0.5 + 8,
-                faixa: {sh: [5, 15], sr: [5, 10]}
-            },
-            'R32': {
-                evap: (p) => p * 0.55 + 4,
-                cond: (p) => p * 0.48 + 10,
-                faixa: {sh: [5, 15], sr: [5, 10]}
-            },
-            'R134': {
-                evap: (p) => p * 0.8 + 2,
-                cond: (p) => p * 0.75 + 7,
-                faixa: {sh: [5, 15], sr: [5, 10]}
-            },
-            'R404': {
-                evap: (p) => p * 0.65 + 1,
-                cond: (p) => p * 0.6 + 6,
-                faixa: {sh: [5, 15], sr: [5, 10]}
-            }
-        };
-
-        // Atualiza as unidades de pressão na interface
-        function atualizarUnidades() {
-            const unidade = document.getElementById('unidade_pressao').value;
-            document.querySelectorAll('.unidade').forEach(el => {
-                el.textContent = unidade;
-            });
-        }
-
-        // Converte valores de pressão entre diferentes unidades
-        function converterPressao(valor, de, para) {
-            if (de === para) return valor;
-            
-            const conversoes = {
-                psi: {bar: 0.0689476, kpa: 6.89476},
-                bar: {psi: 14.5038, kpa: 100},
-                kpa: {psi: 0.145038, bar: 0.01}
-            };
-            
-            return valor * conversoes[de][para];
-        }
-
-        // Mostra ou oculta a seção de histórico
-        function mostrarHistorico() {
-            const div = document.getElementById('historico');
-            div.style.display = div.style.display === 'none' ? 'block' : 'none';
-            
-            const lista = historico.slice(-5).map((item, idx) => `
-                <div class="historico-item">
-                    <p>#${idx + 1} ${item.data}</p>
-                    <p>${item.refrigerante} - SH: ${item.sh}°C | SR: ${item.sr}°C</p>
-                </div>
-            `).join('');
-            
-            document.getElementById('historico-lista').innerHTML = lista;
-        }
-
-        // Adiciona um cálculo ao histórico
-        function adicionarAoHistorico(sh, sr) {
-            historico.push({
-                data: new Date().toLocaleString(),
-                refrigerante: document.getElementById('refrigerante').value,
-                sh: sh.toFixed(1),
-                sr: sr.toFixed(1)
-            });
-            
-            // Limita o histórico a 10 itens
-            if (historico.length > 10) {
-                historico.shift();
-            }
-        }
-
-        // Limpa todos os campos de entrada
-        function limparCampos() {
-            document.getElementById('temp_succao').value = '';
-            document.getElementById('pressao_succao').value = '';
-            document.getElementById('temp_liquida').value = '';
-            document.getElementById('pressao_condensacao').value = '';
-            document.getElementById('resultado').innerHTML = '';
-        }
-
-        // Gera recomendações com base nos valores calculados
-        function gerarRecomendacoes(sh, sr, refFaixa) {
-            const recs = [];
-            
-            if(sh < refFaixa.sh[0]) {
-                recs.push("Verificar carga de refrigerante (possível sobrecarga)");
-                recs.push("Inspecionar válvula de expansão (possível fluxo excessivo)");
-            }
-            
-            if(sh > refFaixa.sh[1]) {
-                recs.push("Verificar vazamentos (possível subcarga)");
-                recs.push("Checar restrições no sistema de refrigeração");
-                recs.push("Verificar filtro secador (possível obstrução)");
-            }
-            
-            if(sr < refFaixa.sr[0]) {
-                recs.push("Verificar subcarregamento de refrigerante");
-                recs.push("Checar válvula de expansão (possível restrição)");
-            }
-            
-            if(sr > refFaixa.sr[1]) {
-                recs.push("Verificar sobrecarga de refrigerante");
-                recs.push("Checar ventilação do condensador (possível obstrução)");
-                recs.push("Verificar temperatura do ambiente externo (muito elevada?)");
-            }
-
-            return recs.length > 0 ? recs : ["Sistema dentro dos parâmetros normais de operação"];
-        }
-
-        // Calcula o diagnóstico completo
-        function calcularDiagnostico() {
-            // Obter inputs
-            const tipoRefrigerante = document.getElementById('refrigerante').value;
-            const unidadePressao = document.getElementById('unidade_pressao').value;
-            
-            const tempSuccao = parseFloat(document.getElementById('temp_succao').value);
-            const pressaoSuccao = parseFloat(document.getElementById('pressao_succao').value);
-            const tempLiquida = parseFloat(document.getElementById('temp_liquida').value);
-            const pressaoCondensacao = parseFloat(document.getElementById('pressao_condensacao').value);
-
-            // Validar inputs
-            if (isNaN(tempSuccao) || isNaN(pressaoSuccao) || isNaN(tempLiquida) || isNaN(pressaoCondensacao)) {
-                alert("Por favor, preencha todos os campos com valores numéricos.");
-                return;
-            }
-
-            // Converter pressão para PSI para cálculos
-            const pressaoSuccaoPSI = unidadePressao === 'psi' ? pressaoSuccao : 
-                                    converterPressao(pressaoSuccao, unidadePressao, 'psi');
-            const pressaoCondensacaoPSI = unidadePressao === 'psi' ? pressaoCondensacao : 
-                                         converterPressao(pressaoCondensacao, unidadePressao, 'psi');
-
-            // Calcular temperaturas saturadas
-            const refrigerante = refrigerantes[tipoRefrigerante];
-            const tempSatEvap = refrigerante.evap(pressaoSuccaoPSI);
-            const tempSatCond = refrigerante.cond(pressaoCondensacaoPSI);
-
-            // Calcular superaquecimento e subresfriamento
-            const superaquecimento = tempSuccao - tempSatEvap;
-            const subresfriamento = tempSatCond - tempLiquida;
-
-            // Verificar faixa ideal
-            const faixaIdeal = refrigerante.faixa;
-            const statusSH = superaquecimento < faixaIdeal.sh[0] ? "Baixo" : 
-                            superaquecimento > faixaIdeal.sh[1] ? "Alto" : "Normal";
-            const statusSR = subresfriamento < faixaIdeal.sr[0] ? "Baixo" : 
-                            subresfriamento > faixaIdeal.sr[1] ? "Alto" : "Normal";
-
-            // Adicionar ao histórico
-            adicionarAoHistorico(superaquecimento, subresfriamento);
-
-            // Gerar recomendações
-            const recomendacoes = gerarRecomendacoes(superaquecimento, subresfriamento, faixaIdeal);
-
-            // Mostrar resultados
-            const resultadoDiv = document.getElementById('resultado');
-            resultadoDiv.innerHTML = `
-                <h3>Resultados do Diagnóstico:</h3>
-                <table>
-                    <tr>
-                        <td><strong>Temperatura Saturada de Evaporação:</strong></td>
-                        <td>${tempSatEvap.toFixed(1)}°C</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Temperatura Saturada de Condensação:</strong></td>
-                        <td>${tempSatCond.toFixed(1)}°C</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Superaquecimento (SH):</strong></td>
-                        <td>${superaquecimento.toFixed(1)}°C <span class="status ${statusSH.toLowerCase()}">${statusSH}</span></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Subresfriamento (SR):</strong></td>
-                        <td>${subresfriamento.toFixed(1)}°C <span class="status ${statusSR.toLowerCase()}">${statusSR}</span></td>
-                    </tr>
-                </table>
-                
-                <h3>Recomendações:</h3>
-                <ul>${recomendacoes.map(r => `<li>${r}</li>`).join('')}</ul>
-            `;
-        }
-
-        // Inicializa as unidades quando a página carrega
-        window.onload = function() {
-            atualizarUnidades();
-        };
-    </script>
-
+    <title>Calculadora de Superresfriamento</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
+        :root {
+            --primary-color: #0078d7;
+            --secondary-color: #005a9e;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
+
         body {
-            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 800px;
             margin: 0 auto;
             background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
         }
-        
+
         h1 {
-            color: #2c3e50;
+            color: var(--primary-color);
             text-align: center;
             margin-bottom: 30px;
         }
-        
-        .configuracoes {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+
+        .form-group {
             margin-bottom: 20px;
         }
-        
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
+
         label {
-            font-weight: bold;
-            color: #2c3e50;
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
         }
-        
-        input, select {
+
+        select, input[type="number"] {
+            width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: var(--border-radius);
             font-size: 16px;
         }
-        
-        .acoes {
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 120, 215, 0.25);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        #resultado {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            background-color: #f9f9f9;
+            display: none;
+        }
+
+        .resultado-row {
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .resultado-label {
+            font-weight: 600;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .diagnostico {
             margin-top: 20px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .diagnostico.normal {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .diagnostico.atencao {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .diagnostico.problema {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        #diagnostico-detalhado {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid #ccc;
+        }
+        
+        #diagnostico-detalhado h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        
+        #problema-diagnostico {
             margin-bottom: 20px;
         }
         
-        button {
-            padding: 10px 15px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s ease;
+        #lista-correcoes li {
+            margin-bottom: 8px;
+            line-height: 1.5;
         }
         
-        button:hover {
-            background-color: #2980b9;
-        }
-        
-        .resultado {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-        }
-        
-        .resultado h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        
-        .resultado table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 15px;
-        }
-        
-        .resultado td {
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .status {
+        .info-icon {
             display: inline-block;
-            padding: 3px 8px;
-            border-radius: 3px;
+            width: 20px;
+            height: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            margin-left: 5px;
+            cursor: help;
             font-size: 14px;
             font-weight: bold;
         }
         
-        .status.normal {
-            background-color: #2ecc71;
-            color: white;
+        .tooltip {
+            position: relative;
+            display: inline-block;
         }
         
-        .status.alto {
-            background-color: #e74c3c;
-            color: white;
-        }
-        
-        .status.baixo {
-            background-color: #f39c12;
-            color: white;
-        }
-        
-        .historico {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-        
-        .historico h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-        
-        .historico-item {
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
             padding: 10px;
-            margin: 5px 0;
-            background-color: #f8f9fa;
-            border-radius: 4px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: normal;
+            font-size: 14px;
         }
         
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
         @media (max-width: 600px) {
-            .configuracoes {
-                grid-template-columns: 1fr;
-            }
-            
-            .acoes {
-                flex-direction: column;
+            .container {
+                padding: 15px;
             }
         }
     </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Superresfriamento</h1>
+        
+        <div class="form-group">
+            <label for="refrigerante">Selecione o Refrigerante:
+                <span class="tooltip">
+                    <span class="info-icon">?</span>
+                    <span class="tooltiptext">Escolha o tipo de fluido refrigerante utilizado no sistema.</span>
+                </span>
+            </label>
+            <select id="refrigerante">
+                <option value="R22">R22</option>
+                <option value="R32">R32</option>
+                <option value="R134a">R134a</option>
+                <option value="R410A">R410A</option>
+                <option value="R404A">R404A</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="pressao">Pressão na Linha de Líquido (psi):
+                <span class="tooltip">
+                    <span class="info-icon">?</span>
+                    <span class="tooltiptext">Pressão medida na saída do condensador (linha de líquido).</span>
+                </span>
+            </label>
+            <input type="number" id="pressao" min="0" step="0.1" placeholder="Ex: 250">
+        </div>
+        
+        <div class="form-group">
+            <label for="temperatura">Temperatura da Linha de Líquido (°C):
+                <span class="tooltip">
+                    <span class="info-icon">?</span>
+                    <span class="tooltiptext">Temperatura medida na tubulação da linha de líquido na saída do condensador.</span>
+                </span>
+            </label>
+            <input type="number" id="temperatura" min="-50" max="150" step="0.1" placeholder="Ex: 30">
+        </div>
+        
+        <button id="calcular">Calcular Superresfriamento</button>
+        
+        <div id="resultado">
+            <h2>Resultado:</h2>
+            <div class="resultado-row">
+                <span class="resultado-label">Temperatura de Saturação:</span>
+                <span id="temp-saturacao">-</span>
+            </div>
+            <div class="resultado-row">
+                <span class="resultado-label">Temperatura da Linha de Líquido:</span>
+                <span id="temp-linha">-</span>
+            </div>
+            <div class="resultado-row">
+                <span class="resultado-label">Superresfriamento:</span>
+                <span id="valor-superresfriamento">-</span>
+            </div>
+            <div id="diagnostico" class="diagnostico"></div>
+            
+            <div id="diagnostico-detalhado" style="margin-top: 20px; display: none;">
+                <h3>Diagnóstico Detalhado</h3>
+                <div id="problema-diagnostico"></div>
+                
+                <h3>Possíveis Correções</h3>
+                <ul id="lista-correcoes"></ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <button onclick="window.location.href='index.html'" style="background-color: #ccc; color: #333; border: none; padding: 10px 20px; border-radius: var(--border-radius); cursor: pointer; font-size: 16px;">
+                Voltar
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Tabelas de pressão-temperatura para diferentes refrigerantes (psi para °C)
+        const tabelasRefrigerantes = {
+            R22: {
+                // Pressão (psi) : Temperatura de saturação (°C)
+                100: 4.4, 110: 7.2, 120: 10.0, 130: 12.2, 140: 14.4, 
+                150: 16.7, 160: 18.9, 170: 20.6, 180: 22.2, 190: 24.4, 
+                200: 26.1, 210: 27.8, 220: 29.4, 230: 31.1, 240: 32.8, 
+                250: 34.4, 260: 35.6, 270: 37.2, 280: 38.9, 290: 40.0, 
+                300: 41.7, 310: 43.3, 320: 44.4, 330: 45.6, 340: 47.2, 
+                350: 48.3, 400: 54.4, 450: 60.0
+            },
+            R32: {
+                // Pressão (psi) : Temperatura de saturação (°C)
+                100: -5.0, 150: 5.6, 200: 15.0, 250: 22.8, 
+                300: 29.4, 350: 35.6, 400: 41.1, 450: 46.1, 
+                500: 50.6, 550: 54.4, 600: 58.3, 650: 61.7
+            },
+            R134a: {
+                // Pressão (psi) : Temperatura de saturação (°C)
+                20: -22.8, 30: -15.0, 40: -8.3, 50: -2.8, 60: 1.7, 
+                70: 5.6, 80: 9.4, 90: 12.8, 100: 15.6, 110: 18.3, 
+                120: 21.1, 130: 23.3, 140: 25.6, 150: 27.8, 
+                160: 30.0, 170: 31.7, 180: 33.9, 190: 35.6, 200: 37.8
+            },
+            R410A: {
+                // Pressão (psi) : Temperatura de saturação (°C)
+                100: -18.9, 150: -5.6, 200: 4.4, 250: 12.8, 
+                300: 20.0, 350: 26.1, 400: 31.7, 450: 36.7, 
+                500: 41.1, 550: 45.0, 600: 48.9, 650: 52.2
+            },
+            R404A: {
+                // Pressão (psi) : Temperatura de saturação (°C)
+                50: -28.9, 100: -12.2, 150: -0.6, 200: 8.3, 
+                250: 15.6, 300: 21.7, 350: 27.2, 400: 32.2, 
+                450: 36.7, 500: 40.6, 550: 44.4, 600: 47.8
+            }
+        };
+
+        document.getElementById('calcular').addEventListener('click', function() {
+            const refrigerante = document.getElementById('refrigerante').value;
+            const pressao = parseFloat(document.getElementById('pressao').value);
+            const temperatura = parseFloat(document.getElementById('temperatura').value);
+            
+            // Validação básica
+            if (isNaN(pressao) || isNaN(temperatura)) {
+                alert('Por favor, preencha todos os campos com valores numéricos válidos.');
+                return;
+            }
+            
+            // Obter a temperatura de saturação através da interpolação
+            const tempSaturacao = calcularTemperaturaSaturacao(refrigerante, pressao);
+            
+            // Calcular o superresfriamento
+            const superresfriamento = tempSaturacao - temperatura;
+            
+            // Mostrar resultados
+            document.getElementById('temp-saturacao').textContent = tempSaturacao.toFixed(1) + ' °C';
+            document.getElementById('temp-linha').textContent = temperatura.toFixed(1) + ' °C';
+            document.getElementById('valor-superresfriamento').textContent = superresfriamento.toFixed(1) + ' °C';
+            
+            // Diagnóstico
+            const diagnosticoElement = document.getElementById('diagnostico');
+            diagnosticoElement.className = 'diagnostico';
+            
+            const diagnosticoDetalhadoDiv = document.getElementById('diagnostico-detalhado');
+            const problemaDiv = document.getElementById('problema-diagnostico');
+            const listaCorrecoes = document.getElementById('lista-correcoes');
+            
+            // Limpar conteúdo anterior
+            problemaDiv.innerHTML = '';
+            listaCorrecoes.innerHTML = '';
+            
+            if (superresfriamento < 3) {
+                if (superresfriamento <= 0) {
+                    diagnosticoElement.textContent = 'PROBLEMA: Superresfriamento negativo ou zero';
+                    diagnosticoElement.classList.add('problema');
+                } else {
+                    diagnosticoElement.textContent = 'ATENÇÃO: Superresfriamento abaixo do mínimo recomendado (3°C)';
+                    diagnosticoElement.classList.add('atencao');
+                }
+                
+                // Diagnóstico detalhado
+                problemaDiv.innerHTML = `
+                    <p>O superresfriamento abaixo de 3°C indica que o refrigerante líquido não está sendo adequadamente resfriado 
+                    abaixo da temperatura de condensação. Isso pode levar à formação de vapor na linha de líquido antes da válvula 
+                    de expansão, causando baixa eficiência e capacidade reduzida de refrigeração.</p>
+                `;
+                
+                // Possíveis correções
+                const correcoesSubresfriamentoBaixo = [
+                    "Verificar se existe obstrução no condensador (sujeira, poeira).",
+                    "Verificar se os ventiladores do condensador estão funcionando corretamente.",
+                    "Conferir se há temperatura ambiente muito alta ao redor do condensador.",
+                    "Verificar se existe excesso de refrigerante gasoso na linha de líquido.",
+                    "Conferir se há problemas na válvula de expansão.",
+                    "Verificar se há falta de refrigerante no sistema (carga baixa)."
+                ];
+                
+                correcoesSubresfriamentoBaixo.forEach(correcao => {
+                    const li = document.createElement('li');
+                    li.textContent = correcao;
+                    listaCorrecoes.appendChild(li);
+                });
+                
+            } else if (superresfriamento > 10) {
+                diagnosticoElement.textContent = 'ATENÇÃO: Superresfriamento acima do máximo recomendado (10°C)';
+                diagnosticoElement.classList.add('atencao');
+                
+                // Diagnóstico detalhado
+                problemaDiv.innerHTML = `
+                    <p>O superresfriamento excessivo (acima de 10°C) geralmente indica uma sobrecarga de refrigerante 
+                    no sistema ou restrição no fluxo. Isso pode causar alta pressão de descarga, sobrecarga do compressor
+                    e redução da capacidade de refrigeração efetiva.</p>
+                `;
+                
+                // Possíveis correções
+                const correcoesSubresfriamentoAlto = [
+                    "Verificar se há excesso de carga de refrigerante no sistema.",
+                    "Conferir se existe restrição na linha de líquido.",
+                    "Verificar se o filtro secador está entupido ou bloqueado.",
+                    "Confirmar se há bloqueio parcial na válvula de expansão.",
+                    "Verificar se a temperatura ambiente ao redor do condensador está muito baixa.",
+                    "Conferir se há vazamentos no sistema de refrigeração.",
+                    "Verificar se o ventilador do evaporador está funcionando corretamente."
+                ];
+                
+                correcoesSubresfriamentoAlto.forEach(correcao => {
+                    const li = document.createElement('li');
+                    li.textContent = correcao;
+                    listaCorrecoes.appendChild(li);
+                });
+                
+            } else {
+                diagnosticoElement.textContent = 'NORMAL: Superresfriamento dentro da faixa recomendada (3°C - 10°C)';
+                diagnosticoElement.classList.add('normal');
+                
+                // Diagnóstico detalhado
+                problemaDiv.innerHTML = `
+                    <p>O superresfriamento está dentro da faixa ideal (3°C - 10°C), indicando que o sistema está 
+                    operando com eficiência. O refrigerante está sendo adequadamente resfriado abaixo da temperatura 
+                    de condensação antes de entrar na válvula de expansão.</p>
+                `;
+                
+                // Possíveis correções (na verdade, recomendações de manutenção)
+                const recomendacoes = [
+                    "Continuar com manutenção preventiva regular.",
+                    "Verificar outros parâmetros do sistema como superaquecimento.",
+                    "Confirmar se as temperaturas de insuflamento estão adequadas.",
+                    "Realizar limpeza periódica do condensador e evaporador.",
+                    "Verificar regularmente se há vazamentos no sistema."
+                ];
+                
+                recomendacoes.forEach(rec => {
+                    const li = document.createElement('li');
+                    li.textContent = rec;
+                    listaCorrecoes.appendChild(li);
+                });
+            }
+            
+            // Mostrar seções de resultado
+            document.getElementById('resultado').style.display = 'block';
+            diagnosticoDetalhadoDiv.style.display = 'block';
+        });
+        
+        // Função para calcular a temperatura de saturação com interpolação
+        function calcularTemperaturaSaturacao(refrigerante, pressao) {
+            const tabela = tabelasRefrigerantes[refrigerante];
+            const pressoes = Object.keys(tabela).map(Number).sort((a, b) => a - b);
+            
+            // Se a pressão é exatamente um dos valores da tabela
+            if (tabela[pressao] !== undefined) {
+                return tabela[pressao];
+            }
+            
+            // Encontrar os pontos para interpolação
+            let pressaoInferior = pressoes[0];
+            let pressaoSuperior = pressoes[pressoes.length - 1];
+            
+            for (let i = 0; i < pressoes.length; i++) {
+                if (pressoes[i] > pressao) {
+                    pressaoSuperior = pressoes[i];
+                    if (i > 0) {
+                        pressaoInferior = pressoes[i - 1];
+                    }
+                    break;
+                }
+                pressaoInferior = pressoes[i];
+            }
+            
+            // Interpolação linear
+            const tempInferior = tabela[pressaoInferior];
+            const tempSuperior = tabela[pressaoSuperior];
+            
+            return tempInferior + (pressao - pressaoInferior) * (tempSuperior - tempInferior) / (pressaoSuperior - pressaoInferior);
+        }
+    </script>
 </body>
 </html>
