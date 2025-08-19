@@ -35,9 +35,27 @@
     .icons a:hover {
       color: #004d40;
     }
+    .back-button {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      background-color: #fff;
+      color: #00796b;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.3s;
+    }
+    .back-button:hover {
+      background-color: #e0f2f1;
+    }
   </style>
 </head>
 <body>
+  <button class="back-button" onclick="window.location.href='../index.html'">← Voltar para Início</button>
   <div class="container">
     <h1>Ajude a manter este projeto vivo 🚀</h1>
     <p>Se este projeto tem sido útil para você ou sua comunidade, considere fazer uma contribuição. Toda ajuda é bem-vinda e será usada para manter e melhorar a aplicação.</p>

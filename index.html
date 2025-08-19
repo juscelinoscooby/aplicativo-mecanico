@@ -27,7 +27,7 @@
       </a>
     </div>
     <div class="item">
-      <a href="ConteudoEmMidia.html" style="text-decoration: none; color: inherit;">
+      <a href="conteudomidia/ConteúdoemMídia.html" style="text-decoration: none; color: inherit;">
         <img src="https://img.icons8.com/ios-filled/50/tv.png" alt="TV" />
         <span>Conteúdo em Mídia</span>
       </a>
@@ -39,7 +39,7 @@
       </a>
     </div>
     <div class="item">
-      <a href="biblioteca/contribuicao.html" style="text-decoration: none; color: inherit;">
+      <a href="contribuicao/contribuicao.html" style="text-decoration: none; color: inherit;">
         <img src="images/icone.png" alt="Contribuição" />
         <span>Contribuição</span>
       </a>
@@ -48,25 +48,32 @@
 
   <script src="script.js"></script>
 
-  <!-- Footer -->
-  <footer style="background-color:#222; color:#fff; padding:20px; text-align:center;">
-    <h3>Técnico Juscelino</h3>
-    <p>Email: <a href="mailto:tecnicojuscelino@gmail.com" style="color:#00aced;">tecnicojuscelino@gmail.com</a></p>
-    <div style="margin:15px 0;">
-      <a href="https://facebook.com" target="_blank" style="margin:0 10px; color:#fff;">
-        <i class="fab fa-facebook-f"></i>
-      </a>
-      <a href="https://instagram.com" target="_blank" style="margin:0 10px; color:#fff;">
-        <i class="fab fa-instagram"></i>
-      </a>
-      <a href="https://linkedin.com" target="_blank" style="margin:0 10px; color:#fff;">
-        <i class="fab fa-linkedin-in"></i>
-      </a>
-      <a href="https://wa.me/5592999999999" target="_blank" style="margin:0 10px; color:#fff;">
-        <i class="fab fa-whatsapp"></i>
-      </a>
-    </div>
-    <p style="font-size:14px;">&copy; 2025 Técnico Juscelino. Todos os direitos reservados.</p>
+  <!-- Footer sem ícones, responsivo e com cores ajustadas -->
+  <footer style="
+    background: linear-gradient(90deg, #0077cc 0%, #005fa3 100%);
+    color: #fff;
+    padding: 32px 16px 16px 16px;
+    text-align: center;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+  ">
+    <h3 style="margin-top:0; font-size:1.4rem;">Criado por Técnico Juscelino</h3>
+
+    <p style="font-size:0.95rem; margin-bottom:0;">&copy; 2025 Técnico Juscelino. Todos os direitos reservados.</p>
+    <style>
+      @media (max-width: 600px) {
+        footer {
+          font-size: 0.95rem;
+          padding: 24px 4px 8px 4px;
+        }
+        footer h3 {
+          font-size: 1.1rem;
+        }
+        footer div {
+          font-size: 1.2rem;
+        }
+      }
+    </style>
   </footer>
 </body>
 </html>
