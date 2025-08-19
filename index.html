@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="style.css" />
   <!-- Adicione isso no <head> do seu HTML -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0077cc">
 </head>
 <body>
   <header style="width:100%; display:flex; justify-content:center; align-items:center; padding-top:24px; padding-bottom:8px;">
@@ -47,6 +49,11 @@
   </main>
 
   <script src="script.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
+  </script>
 
   <!-- Footer sem ícones, responsivo e com cores ajustadas -->
   <footer style="
