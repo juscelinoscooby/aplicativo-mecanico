@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Transformador para Ar-Condicionado</title>
+    <style>
+        /* Estilos gerais */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f0f4f8 100%);
+            padding: 20px;
+            color: #2d3a4b;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(60, 72, 88, 0.15);
+            padding: 32px 28px;
+        }
+        
+        h1 {
+            font-size: 1.7rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 24px;
+            color: #4f8cff;
+        }
+
+        .content {
+            background-color: #f7f9fc;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(79, 140, 255, 0.07);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+        
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        /* Estilos para a seção de entrada */
+        .input-section h2, .result-section h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #2563eb;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #3a4a5e;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .input-group {
+            display: flex;
+        }
+        
+        .input-group input {
+            flex-grow: 1;
+            padding: 10px 12px;
+            border: 1.5px solid #bfc8d6;
+            border-radius: 6px 0 0 6px;
+            background: #f7f9fc;
+            font-size: 1rem;
+            transition: border 0.2s;
+        }
+        
+        .input-group input:focus {
+            border-color: #4f8cff;
+            outline: none;
+        }
+        
+        .input-group select {
+            background-color: #f3f4f6;
+            border: 1.5px solid #bfc8d6;
+            padding: 10px 12px;
+            border-radius: 0 6px 6px 0;
+            font-size: 1rem;
+            transition: border 0.2s;
+        }
+        
+        .input-group select:focus {
+            border-color: #4f8cff;
+            outline: none;
+        }
+        
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #bfc8d6;
+            border-radius: 6px;
+            background: #f7f9fc;
+            font-size: 1rem;
+            transition: border 0.2s;
+        }
+        
+        input[type="number"]:focus, select:focus {
+            border-color: #4f8cff;
+            outline: none;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .radio-group label {
+            display: inline-flex;
+            align-items: center;
+            font-weight: 500;
+            color: #3a4a5e;
+        }
+        
+        .radio-group input {
+            margin-right: 8px;
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        /* Estilos para a seção de resultados */
+        .result-section {
+            background-color: #eaf6ff;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(79, 140, 255, 0.07);
+        }
+        
+        .result-item {
+            margin-bottom: 12px;
+        }
+        
+        .result-item p:first-child {
+            color: #4b5563;
+        }
+        
+        .result-item p:last-child {
+            font-weight: 600;
+        }
+        
+        .result-item.highlighted {
+            padding-top: 8px;
+            border-top: 1px solid #bfdbfe;
+        }
+        
+        .result-item.main-result p:last-child {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #4f8cff;
+        }
+        
+        /* Estilos para as informações adicionais */
+        .info-section {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .info-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2563eb;
+        }
+        
+        .info-section ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            color: #4b5563;
+        }
+        
+        .info-section li {
+            margin-bottom: 4px;
+        }
+
+        .voltar-btn {
+            background: linear-gradient(90deg, #bfc8d6 0%, #eaf6ff 100%);
+            color: #2d3a4b;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            box-shadow: 0 1px 4px rgba(79, 140, 255, 0.07);
+            transition: background 0.2s;
+            display: inline-block;
+        }
+
+        .voltar-btn:hover {
+            background: linear-gradient(90deg, #eaf6ff 0%, #bfc8d6 100%);
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                padding: 16px 8px;
+                max-width: 98vw;
+            }
+            .content {
+                padding: 8px;
+            }
+            h1 {
+                font-size: 1.2rem;
+            }
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Transformador para Ar-Condicionado</h1>
+        <div class="content">
+            <div class="grid">
+                <div class="input-section">
+                    <h2>Dados do Ar-Condicionado</h2>
+                    
+                    <div class="form-group">
+                        <label>Potência:</label>
+                        <div class="input-group">
+                            <input type="number" id="potencia" value="1000" min="0">
+                            <select id="unidade">
+                                <option value="watts">Watts (W)</option>
+                                <option value="kilowatts">Kilowatts (kW)</option>
+                                <option value="btu">BTU/h</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tipo de Sistema:</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="tipoSistema" value="monofasico" checked>
+                                Monofásico
+                            </label>
+                            <label>
+                                <input type="radio" name="tipoSistema" value="trifasico">
+                                Trifásico
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-grid">
+                            <div>
+                                <label>Tensão de Entrada (V):</label>
+                                <select id="tensaoEntrada">
+                                    <option value="127">127V</option>
+                                    <option value="220">220V</option>
+                                    <option value="380">380V</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Tensão de Saída (V):</label>
+                                <select id="tensaoSaida">
+                                    <option value="127">127V</option>
+                                    <option value="220" selected>220V</option>
+                                    <option value="380">380V</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Fator de Potência:</label>
+                        <input type="number" id="fatorPotencia" value="0.85" min="0.5" max="1" step="0.01">
+                        <p class="help-text">Valores típicos: 0.80 - 0.95 (padrão: 0.85)</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Margem de Segurança (%):</label>
+                        <input type="number" id="margemSeguranca" value="30" min="10" max="100">
+                        <p class="help-text">Recomendado: mínimo de 30%</p>
+                    </div>
+                </div>
+                
+                <div class="result-section">
+                    <h2>Resultados do Cálculo</h2>
+                    
+                    <div class="result-item">
+                        <p>Potência em Watts:</p>
+                        <p id="resultPotenciaWatts">0 W</p>
+                    </div>
+                    
+                    <div class="result-item">
+                        <p>Potência Aparente:</p>
+                        <p id="resultPotenciaAparente">0 VA</p>
+                    </div>
+                    
+                    <div class="result-item">
+                        <p>Potência Necessária com Margem de Segurança:</p>
+                        <p id="resultPotenciaTransformador">0 VA</p>
+                    </div>
+                    
+                    <div class="result-item highlighted main-result">
+                        <p>Transformador Recomendado:</p>
+                        <p id="resultTransformadorRecomendado">0 VA</p>
+                    </div>
+                    
+                    <div class="result-item highlighted">
+                        <p id="labelCorrenteEntrada">Corrente no lado de entrada (127V):</p>
+                        <p id="resultCorrenteEntrada">0 A</p>
+                    </div>
+                    
+                    <div class="result-item">
+                        <p id="labelCorrenteSaida">Corrente no lado de saída (220V):</p>
+                        <p id="resultCorrenteSaida">0 A</p>
+                    </div>
+                    
+                    <div class="result-item">
+                        <p>Sistema:</p>
+                        <p id="resultTipoSistema">Monofásico</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <h3>Informações Importantes:</h3>
+                <ul>
+                    <li>Este cálculo é uma estimativa para uso residencial. Para instalações comerciais ou industriais, consulte um eletricista.</li>
+                    <li>Verifique sempre a capacidade dos cabos e disjuntores para garantir que suportem a corrente calculada.</li>
+                    <li>A instalação deve ser feita por um profissional qualificado.</li>
+                    <li>Lembre-se de verificar a compatibilidade do transformador com o sistema elétrico existente.</li>
+                </ul>
+            </div>
+            
+            <button class="voltar-btn" onclick="window.location.href='calculadora.html'">
+                Voltar
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Função para converter BTU/h para Watts: 1 BTU/h ≈ 0.293 Watts
+        function btuParaWatts(btu) {
+            return btu * 0.293;
+        }
+
+        // Função para formatar números para exibição
+        function formatarNumero(num) {
+            return num.toFixed(2).replace(/\.00$/, '');
+        }
+
+        // Função para encontrar o transformador comercial adequado
+        function encontrarTransformadorComercial(potencia) {
+            const valoresComerciais = [500, 750, 1000, 1500, 2000, 3000, 5000, 7500, 10000, 15000];
+            
+            for (let valor of valoresComerciais) {
+                if (valor >= potencia) {
+                    return valor;
+                }
+            }
+            
+            return "Acima de 15000 VA (consulte um especialista)";
+        }
+
+        // Função para calcular todos os valores
+        function calcular() {
+            // Obter valores dos inputs
+            const potencia = parseFloat(document.getElementById('potencia').value) || 0;
+            const unidade = document.getElementById('unidade').value;
+            const tipoSistema = document.querySelector('input[name="tipoSistema"]:checked').value;
+            const tensaoEntrada = parseFloat(document.getElementById('tensaoEntrada').value);
+            const tensaoSaida = parseFloat(document.getElementById('tensaoSaida').value);
+            const fatorPotencia = parseFloat(document.getElementById('fatorPotencia').value) || 0.85;
+            const margemSeguranca = parseFloat(document.getElementById('margemSeguranca').value) || 30;
+            
+            // Calcular potência em watts
+            let potenciaEmWatts = potencia;
+            if (unidade === "kilowatts") {
+                potenciaEmWatts = potencia * 1000;
+            } else if (unidade === "btu") {
+                potenciaEmWatts = btuParaWatts(potencia);
+            }
+            
+            // Cálculo da potência aparente
+            const potenciaAparente = potenciaEmWatts / fatorPotencia;
+            
+            // Cálculo da potência do transformador com margem de segurança
+            const potenciaTransformador = potenciaAparente * (1 + margemSeguranca / 100);
+            
+            // Fator para sistema trifásico (√3 para trifásico, 1 para monofásico)
+            const fatorTrifasico = tipoSistema === "trifasico" ? Math.sqrt(3) : 1;
+            
+            // Cálculo das correntes
+            let correnteEntrada, correnteSaida;
+            
+            if (tipoSistema === "monofasico") {
+                correnteEntrada = potenciaTransformador / tensaoEntrada;
+                correnteSaida = potenciaEmWatts / (tensaoSaida * fatorPotencia);
+            } else {
+                // Para sistema trifásico
+                correnteEntrada = potenciaTransformador / (tensaoEntrada * fatorTrifasico);
+                correnteSaida = potenciaEmWatts / (tensaoSaida * fatorTrifasico * fatorPotencia);
+            }
+            
+            // Encontrar o transformador comercial recomendado
+            const transformadorRecomendado = encontrarTransformadorComercial(potenciaTransformador);
+            
+            // Atualizar os resultados na página
+            document.getElementById('resultPotenciaWatts').textContent = formatarNumero(potenciaEmWatts) + " W";
+            document.getElementById('resultPotenciaAparente').textContent = formatarNumero(potenciaAparente) + " VA";
+            document.getElementById('resultPotenciaTransformador').textContent = formatarNumero(potenciaTransformador) + " VA";
+            document.getElementById('resultTransformadorRecomendado').textContent = transformadorRecomendado + " VA";
+            document.getElementById('resultCorrenteEntrada').textContent = formatarNumero(correnteEntrada) + " A";
+            document.getElementById('resultCorrenteSaida').textContent = formatarNumero(correnteSaida) + " A";
+            document.getElementById('resultTipoSistema').textContent = tipoSistema === "monofasico" ? "Monofásico" : "Trifásico";
+            
+            // Atualizar os labels das correntes com as tensões selecionadas
+            document.getElementById('labelCorrenteEntrada').textContent = `Corrente no lado de entrada (${tensaoEntrada}V):`;
+            document.getElementById('labelCorrenteSaida').textContent = `Corrente no lado de saída (${tensaoSaida}V):`;
+        }
+
+        // Adicionar event listeners a todos os inputs e selects
+        document.getElementById('potencia').addEventListener('input', calcular);
+        document.getElementById('unidade').addEventListener('change', calcular);
+        document.querySelectorAll('input[name="tipoSistema"]').forEach(radio => {
+            radio.addEventListener('change', calcular);
+        });
+        document.getElementById('tensaoEntrada').addEventListener('change', calcular);
+        document.getElementById('tensaoSaida').addEventListener('change', calcular);
+        document.getElementById('fatorPotencia').addEventListener('input', calcular);
+        document.getElementById('margemSeguranca').addEventListener('input', calcular);
+
+        // Calcular valores iniciais ao carregar a página
+        window.addEventListener('load', calcular);
+    </script>
+</body>
+</html>

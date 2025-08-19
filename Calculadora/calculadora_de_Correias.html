@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Correias Inteligente</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 650px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+
+    button, .back-button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      font-weight: bold;
+      display: block;
+    }
+
+    button:hover, .back-button:hover {
+      background: #005fa3;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.2em;
+      text-align: center;
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #0077cc;
+      color: white;
+    }
+
+    .highlight {
+      background-color: #d0ebff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📐 Calculadora de Correias Inteligente</h1>
+    <form id="beltForm">
+      <label for="D">Diâmetro da polia maior (D):</label>
+      <input type="number" id="D" required />
+
+      <label for="d">Diâmetro da polia menor (d):</label>
+      <input type="number" id="d" required />
+
+      <label for="C">Distância entre centros (C):</label>
+      <input type="number" id="C" required />
+
+      <label for="potencia">Potência do motor (CV):</label>
+      <input type="number" id="potencia" required />
+
+      <label for="rpm">Rotação (RPM):</label>
+      <input type="number" id="rpm" required />
+
+      <button type="submit">Calcular e Sugerir Perfil</button>
+    </form>
+
+    <div id="result"></div>
+
+    <table id="profileTable">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Perfil</th>
+          <th>Largura (mm)</th>
+          <th>Altura (mm)</th>
+          <th>Faixa de Comprimento (cm)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>V Tradicional</td><td>A</td><td>13</td><td>8</td><td>60 – 150</td></tr>
+        <tr><td>V Tradicional</td><td>B</td><td>17</td><td>11</td><td>120 – 250</td></tr>
+        <tr><td>V Tradicional</td><td>C</td><td>22</td><td>14</td><td>200 – 400</td></tr>
+        <tr><td>Sincronizada</td><td>HTD 5M</td><td>—</td><td>—</td><td>50 – 200</td></tr>
+        <tr><td>Poly-V</td><td>PJ</td><td>2.34/canal</td><td>—</td><td>40 – 120</td></tr>
+      </tbody>
+    </table>
+
+    <a href="calculadora.html" class="back-button">🔙 Voltar para Calculadora</a>
+  </div>
+
+  <script>
+    document.getElementById("beltForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const D = parseFloat(document.getElementById("D").value);
+      const d = parseFloat(document.getElementById("d").value);
+      const C = parseFloat(document.getElementById("C").value);
+      const potencia = parseFloat(document.getElementById("potencia").value);
+      const rpm = parseFloat(document.getElementById("rpm").value);
+
+      if (D <= 0 || d <= 0 || C <= 0 || potencia <= 0 || rpm <= 0) {
+        document.getElementById("result").textContent = "⚠️ Insira todos os valores corretamente!";
+        return;
+      }
+
+      const pi = Math.PI;
+      const L = 2 * C + (pi / 2) * (D + d) + ((D - d) ** 2) / (4 * C);
+      const comprimento = L.toFixed(2);
+
+      // Sugestão de perfil
+      let perfilSugerido = "";
+      if (potencia <= 3 && rpm <= 1800) perfilSugerido = "A";
+      else if (potencia <= 10 && rpm <= 3000) perfilSugerido = "B";
+      else if (potencia <= 20 && rpm <= 3600) perfilSugerido = "C";
+      else perfilSugerido = "D ou sincronizada";
+
+      document.getElementById("result").innerHTML =
+        `📏 Comprimento da correia: <strong>${comprimento} cm</strong><br>` +
+        `🧠 Perfil sugerido: <strong>${perfilSugerido}</strong>`;
+
+      // Destacar perfil compatível
+      const linhas = document.querySelectorAll("#profileTable tbody tr");
+      linhas.forEach(linha => {
+        linha.classList.remove("highlight");
+        const faixa = linha.cells[4].textContent;
+        const perfil = linha.cells[1].textContent;
+        const [min, max] = faixa.split("–").map(v => parseFloat(v.trim()));
+        if (comprimento >= min && comprimento <= max && perfil.includes(perfilSugerido[0])) {
+          linha.classList.add("highlight");
+        }
+      });
+    });
+  </script>
+</body>
+</html>

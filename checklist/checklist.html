@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checklist Técnico com PDF Detalhado</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #005fa3;
+    }
+
+    .btn-voltar {
+      margin-top: 10px;
+      background: #bfc8d6;
+      color: #2d3a4b;
+      border: none;
+      border-radius: 5px;
+      padding: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      display: block;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 Checklist Técnico</h1>
+    
+    <label>Nome do Equipamento:</label>
+    <input type="text" id="equipamento" />
+
+    <label>Data:</label>
+    <input type="date" id="data" />
+
+    <label>Local do Equipamento:</label>
+    <input type="text" id="local" />
+
+    <label>Foto do Equipamento:</label>
+    <input type="file" id="fotoEquipamento" accept="image/*" />
+
+    <label>Foto da Etiqueta:</label>
+    <input type="file" id="fotoEtiqueta" accept="image/*" />
+
+    <label>Status do Equipamento:</label>
+    <select id="status">
+      <option>Operacional</option>
+      <option>Em paliativo</option>
+      <option>Parado</option>
+      <option>Em manutenção</option>
+    </select>
+
+    <label>Defeito Encontrado:</label>
+    <textarea id="defeito" rows="3"></textarea>
+
+    <label>Solução:</label>
+    <textarea id="solucao" rows="3"></textarea>
+
+    <label>Observações:</label>
+    <textarea id="observacoes" rows="3"></textarea>
+
+    <button onclick="gerarPDF()">📄 Gerar PDF</button>
+    <button onclick="window.location.href='../index.html'" class="btn-voltar">
+      ⬅️ Voltar ao Menu
+    </button>
+  </div>
+
+  <script>
+    let imgEquipamentoData, imgEtiquetaData;
+
+    // Carrega a foto do equipamento
+    document.getElementById('fotoEquipamento')
+      .addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => imgEquipamentoData = e.target.result;
+        reader.readAsDataURL(file);
+      });
+
+    // Carrega a foto da etiqueta
+    document.getElementById('fotoEtiqueta')
+      .addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => imgEtiquetaData = e.target.result;
+        reader.readAsDataURL(file);
+      });
+
+    // Gera o PDF com texto e imagens
+    function gerarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+
+      const leftMargin = 40;
+      let y = 40;
+      const lineHeight = 20;
+      const maxWidth = doc.internal.pageSize.getWidth() - leftMargin*2;
+
+      doc.setFontSize(14);
+      doc.text('Relatório de Checklist Técnico', leftMargin, y);
+      y += lineHeight*1.5;
+
+      doc.setFontSize(11);
+      const campos = [
+        `Equipamento: ${document.getElementById('equipamento').value}`,
+        `Data: ${document.getElementById('data').value}`,
+        `Local: ${document.getElementById('local').value}`,
+        `Status: ${document.getElementById('status').value}`,
+        `Defeito encontrado: ${document.getElementById('defeito').value}`,
+        `Solução: ${document.getElementById('solucao').value}`,
+        `Observações: ${document.getElementById('observacoes').value}`
+      ];
+      
+      campos.forEach(linha => {
+        doc.text(doc.splitTextToSize(linha, maxWidth), leftMargin, y);
+        y += lineHeight;
+      });
+
+      // Espaço antes das imagens
+      y += lineHeight;
+
+      // Adiciona imagem do equipamento
+      if (imgEquipamentoData) {
+        doc.text('Foto do Equipamento:', leftMargin, y);
+        y += 10;
+        doc.addImage(
+          imgEquipamentoData,
+          'JPEG',
+          leftMargin,
+          y,
+          200,
+          0 // altura automática
+        );
+        y += 200 + 10;
+      }
+
+      // Adiciona imagem da etiqueta
+      if (imgEtiquetaData) {
+        doc.text('Foto da Etiqueta:', leftMargin, y);
+        y += 10;
+        doc.addImage(
+          imgEtiquetaData,
+          'JPEG',
+          leftMargin,
+          y,
+          200,
+          0
+        );
+      }
+
+      doc.save('checklist-detalhado.pdf');
+    }
+  </script>
+</body>
+</html>
