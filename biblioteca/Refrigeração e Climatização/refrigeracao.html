@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📚 Refrigeração e Climatização</title>
+  <style>
+    :root {
+      --azul: #0077cc;
+      --azul-escuro: #005fa3;
+      --cinza-claro: #f0f0f0;
+      --branco: #ffffff;
+      --texto: #333333;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: var(--cinza-claro);
+      margin: 0;
+      padding: 0;
+      color: var(--texto);
+    }
+
+    header {
+      background-color: var(--azul);
+      color: var(--branco);
+      padding: 2rem 1rem 1rem;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .back-button {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background-color: var(--branco);
+      color: var(--azul);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.3s;
+    }
+
+    .back-button:hover {
+      background-color: #e0e0e0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    p {
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .search-bar {
+      margin: 2rem auto;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      padding: 0.8rem;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 30px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .category {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .category h2 {
+      color: var(--azul);
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--azul);
+      padding-left: 0.5rem;
+    }
+
+    .document {
+      background-color: var(--branco);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      transition: transform 0.2s;
+    }
+
+    .document:hover {
+      transform: scale(1.01);
+    }
+
+    .document span {
+      font-weight: 500;
+      flex: 1;
+      text-align: left;
+      font-size: 1rem;
+    }
+
+    .document a button {
+      background-color: var(--azul);
+      color: var(--branco);
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.3s;
+    }
+
+    .document a button:hover {
+      background-color: var(--azul-escuro);
+    }
+
+    @media (max-width: 600px) {
+      .document {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .document a button {
+        margin-top: 0.5rem;
+        width: 100%;
+      }
+
+      .back-button {
+        position: static;
+        margin-bottom: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <button class="back-button" onclick="window.location.href='../biblioteca.html'">← Voltar</button>
+    <h1>📚 Refrigeração e Climatização</h1>
+    <p>Explore e baixe materiais úteis para seu trabalho</p>
+  </header>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Buscar documento..." onkeyup="filtrarDocumentos()" />
+  </div>
+
+  <div class="category">
+    <h2></h2>
+    <div class="document">
+      <span>Curso Mecânico de Refrigeração e ar condicionado</span>
+      <a href="doc/Apostila-Mecanico-de-Refrigeracao.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+  </div>
+
+  <div class="category">
+    <h2></h2>
+    <div class="document">
+      <span>🛠️ Mecânica</span>
+      <a href="link-vibracao.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+  </div>
+
+  <div class="category">
+    <h2></h2>
+    <div class="document">
+      <span>💧 Hidráulica</span>
+      <a href="link-ferrovias.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+  </div>
+
+  <div class="category">
+    <h2></h2>
+    <div class="document">
+      <span>🧱 Civil</span>
+      <a href="link-ferrovias.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+  </div>
+
+  <div class="category">
+    <h2></h2>
+    <div class="document">
+      <span>🖌️ Pinturas e Acabamentos </span>
+      <a href="link-ferrovias.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+  </div>
+
+  <div class="category">
+    <h2></h2>
+    <div class="document">
+      <span> ❄️ Refrigeração e Climatização </span>
+      <a href="link-ferrovias.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+  </div>
+
+  <div class="category">
+    <h2></h2>
+    <div class="document">
+      <span>🪛 Eletrodomesticos  </span>
+      <a href="link-ferrovias.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+  </div>
+
+
+  <script>
+    function filtrarDocumentos() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const documentos = document.querySelectorAll(".document");
+
+      documentos.forEach(doc => {
+        const texto = doc.textContent.toLowerCase();
+        doc.style.display = texto.includes(input) ? "flex" : "none";
+      });
+    }
+  </script>
+
+</body>
+</html>
