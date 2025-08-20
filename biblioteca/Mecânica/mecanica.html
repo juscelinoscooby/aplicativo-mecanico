@@ -1,53 +1,452 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Em breve</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            text-align: center;
-            padding-top: 100px;
-        }
-        .container {
-            background: #fff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: inline-block;
-        }
-        h1 {
-            color: #333;
-        }
-        p {
-            color: #666;
-        }
-        .back-button {
-            position: absolute;
-            top: 30px;
-            left: 30px;
-            background-color: #fff;
-            color: #0077cc;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: background-color 0.3s;
-        }
-        .back-button:hover {
-            background-color: #e0e0e0;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🛠️ Mecânica</title>
+  <style>
+    :root {
+      --azul: #0077cc;
+      --azul-escuro: #005fa3;
+      --cinza-claro: #f0f0f0;
+      --branco: #ffffff;
+      --texto: #333333;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: var(--cinza-claro);
+      margin: 0;
+      padding: 0;
+      color: var(--texto);
+    }
+
+    header {
+      background-color: var(--azul);
+      color: var(--branco);
+      padding: 2rem 1rem 1rem;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .back-button {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background-color: var(--branco);
+      color: var(--azul);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.3s;
+    }
+
+    .back-button:hover {
+      background-color: #e0e0e0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    p {
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .search-bar {
+      margin: 2rem auto;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      padding: 0.8rem;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 30px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .category {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .category h2 {
+      color: var(--azul);
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--azul);
+      padding-left: 0.5rem;
+    }
+
+    .document {
+      background-color: var(--branco);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      transition: transform 0.2s;
+    }
+
+    .document:hover {
+      transform: scale(1.01);
+    }
+
+    .document span {
+      font-weight: 500;
+      flex: 1;
+      text-align: left;
+      font-size: 1rem;
+    }
+
+    .document a button {
+      background-color: var(--azul);
+      color: var(--branco);
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.3s;
+    }
+
+    .document a button:hover {
+      background-color: var(--azul-escuro);
+    }
+
+    @media (max-width: 600px) {
+      .document {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .document a button {
+        margin-top: 0.5rem;
+        width: 100%;
+      }
+
+      .back-button {
+        position: static;
+        margin-bottom: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <button class="back-button" onclick="window.location.href='../biblioteca.html'">← Voltar para Biblioteca</button>
-    <div class="container">
-        <h1>Estamos trabalhando!</h1>
-        <p>Em breve você poderá acessar o resultado desta página.<br>
-        Aguarde, estamos preparando tudo para lhe oferecer o melhor!</p>
+
+  <header>
+    <button class="back-button" onclick="window.location.href='../biblioteca.html'">← Voltar</button>
+    <h1>🛠️ Mecânica</h1>
+    <p>Explore e baixe materiais úteis para seu trabalho</p>
+  </header>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Buscar documento..." onkeyup="filtrarDocumentos()" />
+  </div>
+
+  <div class="category">
+    <h2></h2>
+    <div class="document">
+      <span>02 Creditos AMBEV</span>
+      <a href="doc/02 Creditos-AMBEV.pdf" target="_blank"><button>Acessar</button></a>
     </div>
+    
+    <div class="document">
+      <span>03 Sum rio AMBEV</span>
+      <a href="doc/03 Sum rio-AMBEV.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>04 Introdu‡Æo AMBEV</span>
+      <a href="doc/04 Introdu‡Æo-AMBEV.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>05 PressÆo AMBEV</span>
+      <a href="doc/05 PressÆo-AMBEV.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>06 N¡vel AMBEV</span>
+      <a href="doc/06 N¡vel-AMBEV.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>07 VazÆo AMBEV</span>
+      <a href="doc/07 VazÆo-AMBEV.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>08 Temperatura AMBEV</span>
+      <a href="doc/08 Temperatura-AMBEV.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>09 Valv de Controle AMBEV</span>
+      <a href="doc/09 Valv de Controle-AMBEV.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>10 Controle Automatico AMBEV</span>
+      <a href="doc/10 Controle Automatico-AMBEV.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>11 Referˆncias Bibliogr ficas AMBEV</span>
+      <a href="doc/11 Referˆncias Bibliogr ficas-AMBEV.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Ajustagem básica</span>
+      <a href="doc/Ajustagem básica.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Comando numérico</span>
+      <a href="doc/Comando numérico.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Controle automático de processos</span>
+      <a href="doc/Controle automático de processos.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Eletricidade básica automotiva</span>
+      <a href="doc/Eletricidade básica automotiva.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Eletricidade e eletronica para automoveis</span>
+      <a href="doc/Eletricidade e eletronica para automoveis.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Eletricista de automóveis 1</span>
+      <a href="doc/Eletricista de automóveis 1.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Eletricista de automóveis 2</span>
+      <a href="doc/Eletricista de automóveis 2.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Eletricista de automóveis</span>
+      <a href="doc/Eletricista de automóveis.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Eletronica embarcada 2</span>
+      <a href="doc/Eletronica embarcada 2.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Esquema Injeção</span>
+      <a href="doc/Esquema Injeção.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Ferramentas de corte manuais</span>
+      <a href="doc/Ferramentas de corte manuais.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Fresamento</span>
+      <a href="doc/Fresamento.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Furação</span>
+      <a href="doc/Furação.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Ignição convencional e eletrônica</span>
+      <a href="doc/Ignição convencional e eletrônica.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Ingles Técnico</span>
+      <a href="doc/Ingles Técnico.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Injeção eletronica</span>
+      <a href="doc/Injeção eletronica.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Injeção eletrônica FIC</span>
+      <a href="doc/Injeção eletrônica FIC.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Injeção eletrônica Magnetti Mareli</span>
+      <a href="doc/Injeção eletrônica Magnetti Mareli.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Injeção Eletrônica SPI G7</span>
+      <a href="doc/Injeção Eletrônica SPI G7.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Injeção eletrônica</span>
+      <a href="doc/Injeção eletrônica.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Instrumentação Básica</span>
+      <a href="doc/Instrumentação Básica.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>instrumenta‡Æo capa</span>
+      <a href="doc/instrumenta‡Æo capa.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Lubrificação</span>
+      <a href="doc/Lubrificação.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Mancais de rolamento</span>
+      <a href="doc/Mancais de rolamento.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Mecânica de motocicletas</span>
+      <a href="doc/Mecânica de motocicletas.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Pneumatica basica</span>
+      <a href="doc/Pneumatica basica.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Pneumática complementar</span>
+      <a href="doc/Pneumática complementar.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Pneumática e técnicas de comando</span>
+      <a href="doc/Pneumática e técnicas de comando.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Preparacao motores RD RDZ DT</span>
+      <a href="doc/Preparacao_motores_RD-RDZ-DT.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Prática de Manutenção 1</span>
+      <a href="doc/Prática de Manutenção 1.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Roscas</span>
+      <a href="doc/Roscas.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Sistemas de ignição</span>
+      <a href="doc/Sistemas de ignição.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Tecnologia CNC</span>
+      <a href="doc/Tecnologia CNC.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Tecnologia de rolamentos</span>
+      <a href="doc/Tecnologia de rolamentos.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Tecnologia de Solda</span>
+      <a href="doc/Tecnologia de Solda.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Tecnologia e prática de manutenção 1</span>
+      <a href="doc/Tecnologia e prática de manutenção 1.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Tecnologia mecanica 1</span>
+      <a href="doc/Tecnologia mecanica 1.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Tecnologia Mecânica 2</span>
+      <a href="doc/Tecnologia Mecânica 2.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Tecnologia Mecânica</span>
+      <a href="doc/Tecnologia Mecânica.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Tecnologias aplicadas</span>
+      <a href="doc/Tecnologias aplicadas.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Torneamento</span>
+      <a href="doc/Torneamento.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Traçagem</span>
+      <a href="doc/Traçagem.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Usinagem Ajustagem</span>
+      <a href="doc/Usinagem Ajustagem.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Usinagem Tornearia</span>
+      <a href="doc/Usinagem Tornearia.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+    <div class="document">
+      <span>Utilidades e instrumentação</span>
+      <a href="doc/Utilidades e instrumentação.pdf" target="_blank"><button>Acessar</button></a>
+    </div>
+    
+
+  
+  <script>
+    function filtrarDocumentos() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const documentos = document.querySelectorAll(".document");
+
+      documentos.forEach(doc => {
+        const texto = doc.textContent.toLowerCase();
+        doc.style.display = texto.includes(input) ? "flex" : "none";
+      });
+    }
+  </script>
+
 </body>
 </html>
