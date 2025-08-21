@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Checklist Técnico com PDF Detalhado</title>
+  <title>Checklist Técnico Interativo</title>
+  <link rel="manifest" href="manifest.json" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f4f8;
+      background: #eef2f7;
       margin: 0;
       padding: 0;
     }
 
-    .container {
+    .chat-container {
       max-width: 700px;
       margin: 30px auto;
       background: #fff;
@@ -22,24 +23,34 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
+    .bot, .user {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 80%;
     }
 
-    input, select, textarea {
+    .bot {
+      background: #dceeff;
+      align-self: flex-start;
+    }
+
+    .user {
+      background: #c1f0d6;
+      align-self: flex-end;
+      text-align: right;
+    }
+
+    #userInput {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      box-sizing: border-box;
+      padding: 10px;
+      margin-top: 10px;
       border-radius: 5px;
       border: 1px solid #ccc;
     }
 
     button {
-      margin-top: 20px;
-      width: 100%;
+      margin-top: 10px;
       padding: 10px;
       background: #0077cc;
       color: white;
@@ -53,148 +64,128 @@
       background: #005fa3;
     }
 
-    .btn-voltar {
+    input[type="file"] {
       margin-top: 10px;
-      background: #bfc8d6;
-      color: #2d3a4b;
-      border: none;
-      border-radius: 5px;
-      padding: 10px;
-      font-weight: bold;
-      cursor: pointer;
-      display: block;
-      text-align: center;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📋 Checklist Técnico</h1>
-    
-    <label>Nome do Equipamento:</label>
-    <input type="text" id="equipamento" />
-
-    <label>Data:</label>
-    <input type="date" id="data" />
-
-    <label>Local do Equipamento:</label>
-    <input type="text" id="local" />
-
-    <label>Foto do Equipamento:</label>
-    <input type="file" id="fotoEquipamento" accept="image/*" />
-
-    <label>Foto da Etiqueta:</label>
-    <input type="file" id="fotoEtiqueta" accept="image/*" />
-
-    <label>Status do Equipamento:</label>
-    <select id="status">
-      <option>Operacional</option>
-      <option>Em paliativo</option>
-      <option>Parado</option>
-      <option>Em manutenção</option>
-    </select>
-
-    <label>Defeito Encontrado:</label>
-    <textarea id="defeito" rows="3"></textarea>
-
-    <label>Solução:</label>
-    <textarea id="solucao" rows="3"></textarea>
-
-    <label>Observações:</label>
-    <textarea id="observacoes" rows="3"></textarea>
-
-    <button onclick="gerarPDF()">📄 Gerar PDF</button>
-    <button onclick="window.location.href='../index.html'" class="btn-voltar">
-      ⬅️ Voltar ao Menu
-    </button>
+  <div class="chat-container" id="chatbox">
+    <div class="bot">Olá! Vamos começar o checklist técnico. Qual o nome do equipamento?</div>
   </div>
 
+  <input type="text" id="userInput" placeholder="Digite sua resposta..." />
+  <button onclick="processarResposta()">Enviar</button>
+  <button onclick="gerarPDF()">📄 Gerar PDF</button>
+ <button onclick="window.location.href='../index.html'" class="btn-voltar">
+      ⬅️ Voltar ao Menu
+    </button>
   <script>
-    let imgEquipamentoData, imgEtiquetaData;
+    // Registrar Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
 
-    // Carrega a foto do equipamento
-    document.getElementById('fotoEquipamento')
-      .addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = e => imgEquipamentoData = e.target.result;
-        reader.readAsDataURL(file);
+    const { jsPDF } = window.jspdf;
+    const respostas = {};
+    const imagens = {
+      equipamento: [],
+      etiqueta: [],
+      defeito: [],
+      local: []
+    };
+
+    const perguntas = [
+      { chave: "equipamento", texto: "Qual o nome do equipamento?" },
+      { chave: "data", texto: "Qual a data da inspeção?" },
+      { chave: "local", texto: "Qual o local do equipamento?" },
+      { chave: "tipo", texto: "Qual o tipo de equipamento? (quadro elétrico, computador, setor...)" },
+      { chave: "status", texto: "Qual o status do equipamento?" },
+      { chave: "defeito", texto: "Descreva o defeito encontrado." },
+      { chave: "solucao", texto: "Qual foi a solução aplicada?" },
+      { chave: "observacoes", texto: "Observações adicionais?" },
+      { chave: "tecnico", texto: "Nome do técnico responsável?" },
+      { chave: "fotos", texto: "Agora vamos capturar as imagens. Use a câmera para registrar cada item." }
+    ];
+
+    let etapa = 0;
+
+    function processarResposta() {
+      const input = document.getElementById("userInput").value;
+      if (etapa < perguntas.length - 1) {
+        const chave = perguntas[etapa].chave;
+        respostas[chave] = input;
+        adicionarMensagem("user", input);
+        etapa++;
+        adicionarMensagem("bot", perguntas[etapa].texto);
+        document.getElementById("userInput").value = "";
+        if (perguntas[etapa].chave === "fotos") {
+          mostrarInputsDeImagem();
+        }
+      }
+    }
+
+    function adicionarMensagem(tipo, texto) {
+      const div = document.createElement("div");
+      div.className = tipo;
+      div.textContent = texto;
+      document.getElementById("chatbox").appendChild(div);
+    }
+
+    function mostrarInputsDeImagem() {
+      const container = document.getElementById("chatbox");
+      ["equipamento", "etiqueta", "defeito", "local"].forEach(categoria => {
+        const label = document.createElement("label");
+        label.textContent = `Foto de ${categoria}:`;
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.capture = "environment";
+        input.onchange = e => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = ev => imagens[categoria].push(ev.target.result);
+            reader.readAsDataURL(file);
+          }
+        };
+        container.appendChild(label);
+        container.appendChild(input);
       });
+    }
 
-    // Carrega a foto da etiqueta
-    document.getElementById('fotoEtiqueta')
-      .addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = e => imgEtiquetaData = e.target.result;
-        reader.readAsDataURL(file);
-      });
-
-    // Gera o PDF com texto e imagens
     function gerarPDF() {
-      const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-
-      const leftMargin = 40;
+      const margem = 40;
       let y = 40;
-      const lineHeight = 20;
-      const maxWidth = doc.internal.pageSize.getWidth() - leftMargin*2;
+      const alturaLinha = 20;
+      const larguraMax = doc.internal.pageSize.getWidth() - margem * 2;
 
       doc.setFontSize(14);
-      doc.text('Relatório de Checklist Técnico', leftMargin, y);
-      y += lineHeight*1.5;
+      doc.text("Checklist Técnico Interativo", margem, y);
+      y += alturaLinha * 2;
 
       doc.setFontSize(11);
-      const campos = [
-        `Equipamento: ${document.getElementById('equipamento').value}`,
-        `Data: ${document.getElementById('data').value}`,
-        `Local: ${document.getElementById('local').value}`,
-        `Status: ${document.getElementById('status').value}`,
-        `Defeito encontrado: ${document.getElementById('defeito').value}`,
-        `Solução: ${document.getElementById('solucao').value}`,
-        `Observações: ${document.getElementById('observacoes').value}`
-      ];
-      
-      campos.forEach(linha => {
-        doc.text(doc.splitTextToSize(linha, maxWidth), leftMargin, y);
-        y += lineHeight;
-      });
-
-      // Espaço antes das imagens
-      y += lineHeight;
-
-      // Adiciona imagem do equipamento
-      if (imgEquipamentoData) {
-        doc.text('Foto do Equipamento:', leftMargin, y);
-        y += 10;
-        doc.addImage(
-          imgEquipamentoData,
-          'JPEG',
-          leftMargin,
-          y,
-          200,
-          0 // altura automática
-        );
-        y += 200 + 10;
+      for (let chave in respostas) {
+        const texto = `${chave.charAt(0).toUpperCase() + chave.slice(1)}: ${respostas[chave]}`;
+        doc.text(doc.splitTextToSize(texto, larguraMax), margem, y);
+        y += alturaLinha;
       }
 
-      // Adiciona imagem da etiqueta
-      if (imgEtiquetaData) {
-        doc.text('Foto da Etiqueta:', leftMargin, y);
-        y += 10;
-        doc.addImage(
-          imgEtiquetaData,
-          'JPEG',
-          leftMargin,
-          y,
-          200,
-          0
-        );
+      y += alturaLinha;
+
+      for (let categoria in imagens) {
+        if (imagens[categoria].length > 0) {
+          doc.text(`Foto de ${categoria}:`, margem, y);
+          y += 10;
+          imagens[categoria].forEach(img => {
+            doc.addImage(img, 'JPEG', margem, y, 200, 0);
+            y += 210;
+          });
+        }
       }
 
-      doc.save('checklist-detalhado.pdf');
+      doc.save("checklist-tecnico.pdf");
     }
   </script>
 </body>
